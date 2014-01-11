@@ -24,6 +24,7 @@ Target to have a camera which
 - Has remote shoot possibility
 - Has enough resolution
 - Cheap
+
 Best: Raspberry Pi with RaspiCam
 
 Speed
