@@ -5,8 +5,10 @@ MovScan
 Motivation
 ==========
 I have a large suitcase of 8mm movies. To see one, I must prepare projector and environment which is too complicated.
-ToDo
-To prevent flashing of video, all slides must be shooted, and join them to a video.
+
+Task
+====
+To prevent flashing of video, all slides must be shooted one by one, and join them to a video.
 
 Flashing video example:
 http://youtu.be/WmCGSHX4Mqk
