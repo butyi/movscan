@@ -40,34 +40,45 @@ with picamera.PiCamera() as camera:
     #  watchdog inpunt must be monitorred)
     pin11state = GPIO.HIGH # Due to input is active low
     pin11prevst = GPIO.HIGH
+    last_wd_edge = time.time() + 10 # Now + 10sec
+
+    # Edge detect variables for watchdog input
+    pin4state = GPIO.HIGH # Due to input is active low
+    pin4prevst = GPIO.HIGH
 
     # Main loop
     Loop = True
     while Loop:
-        # Wait for shot imput edge
+        # Wait for shot imput falling edge
         pin11state = GPIO.input(11)
-        if (pin11state == GPIO.LOW && pin11revst == GPIO.HIGH) # Falling edge
+        if (pin11state == GPIO.LOW and pin11revst == GPIO.HIGH): # Falling edge happened
 
-<<<<<<< HEAD
             # Take the picture
             camera.capture_sequence((
                 'image%05d.jpg' % n # Numberred file name for video creation later on
-=======
-        # Take the picture
-        camera.capture_sequence((
-                'image%05d.jpg' % (n+p) # Numberred file name for video creation later on
->>>>>>> 730be0e767ab1eca6b7a5c3fcf9c2ce3a8385c17
                 for p in range(1) # One picture is saved only
                 ), use_video_port=True) # use_video_port=True speeds up the camera
             print "%d" % n # Inform me about operating
             n = n + 1 # Increase image number
 
+        # Save shoot pin state for edge detection
+        pin11prevst = pin11state
+
         # Check watchdog input. It is pulse from source reel.
         # It always makes pulse when the reel is moving.
         # When we don't detect pulse for 10...15s, 
         # it is stopped, we can leave the loop by Loop = False.
-        #if n>=1:
-        #    break
+        pin4state = GPIO.input(4) # Read actual pin state
+        if (pin4state <> pin4revst): # Any edge happened, reel is turning
+            last_wd_edge = time.time(); # Save the time of edge
+
+        # Save watchdog pin state for edge detection
+        pin4prevst = pin4state
+
+        # Check watchdog time
+        elapsed_time = time.time() - pin4prevst # Calculate elapsed time for last watchdog edge
+        if (30 < elapsed_time): # if elapsed time is more than 30s
+            break # Leave the loop, exit from script
 
     # Final actions before quit from scrip
     camera.stop_preview() # Switch off the camera
