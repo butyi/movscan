@@ -34,19 +34,26 @@ with picamera.PiCamera() as camera:
     preview_fullscreen = True # To see same what will be saved
     time.sleep(3) # Wait to camera auto settings
 
+    # Edge detect variables for shoot detection 
+    # (GPIO.wait_for_edge is not proper, because during waiting edge
+    #  watchdog inpunt must be monitorred)
+    pin11state = GPIO.HIGH # Due to input is active low
+    pin11prevst = GPIO.HIGH
+
     # Main loop
     Loop = True
     while Loop:
         # Wait for shot imput edge
-        GPIO.wait_for_edge(11, GPIO.FALLING)
+        pin11state = GPIO.input(11)
+        if (pin11state == GPIO.LOW && pin11revst == GPIO.HIGH) # Falling edge
 
-        # Take the picture
-        camera.capture_sequence((
+            # Take the picture
+            camera.capture_sequence((
                 'image%05d.jpg' % n # Numberred file name for video creation later on
                 for p in range(1) # One picture is saved only
                 ), use_video_port=True) # use_video_port=True speeds up the camera
-        print "image %d" % n # Inform me about operating
-        n = n + 1 # Increase image number
+            print "%d" % n # Inform me about operating
+            n = n + 1 # Increase image number
 
         # Check watchdog input. It is pulse from source reel.
         # It always makes pulse when the reel is moving.
