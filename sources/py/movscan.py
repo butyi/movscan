@@ -17,7 +17,7 @@ with picamera.PiCamera() as camera:
     # Board I/O init
     GPIO.setmode(GPIO.BOARD) # Use board pin numbering
     GPIO.setup(11, GPIO.IN) # Setup GPIO Pin 11 to shot input
-    GPIO.setup(7, GPIO.IN) # Setup GPIO Pin 7 to watchdog input
+    GPIO.setup(7, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Setup GPIO Pin 7 to watchdog input with activated built-in pull up
     
     # Image counter
     n = 0 
@@ -43,15 +43,15 @@ with picamera.PiCamera() as camera:
     last_wd_edge = time.time() + 10 # Now + 10sec
 
     # Edge detect variables for watchdog input
-    pin4state = GPIO.HIGH # Due to input is active low
-    pin4prevst = GPIO.HIGH
+    pin7state = GPIO.HIGH # Due to input is active low
+    pin7prevst = GPIO.HIGH
 
     # Main loop
     Loop = True
     while Loop:
         # Wait for shot imput falling edge
         pin11state = GPIO.input(11)
-        if (pin11state == GPIO.LOW and pin11revst == GPIO.HIGH): # Falling edge happened
+        if (pin11state == GPIO.LOW and pin11prevst == GPIO.HIGH): # Falling edge happened
 
             # Take the picture
             camera.capture_sequence((
@@ -68,15 +68,16 @@ with picamera.PiCamera() as camera:
         # It always makes pulse when the reel is moving.
         # When we don't detect pulse for 10...15s, 
         # it is stopped, we can leave the loop by Loop = False.
-        pin4state = GPIO.input(4) # Read actual pin state
-        if (pin4state <> pin4revst): # Any edge happened, reel is turning
+        pin7state = GPIO.input(7) # Read actual pin state
+        if (pin7state <> pin7prevst): # Any edge happened, reel is turning
             last_wd_edge = time.time(); # Save the time of edge
+            print "wd"
 
         # Save watchdog pin state for edge detection
-        pin4prevst = pin4state
+        pin7prevst = pin7state
 
         # Check watchdog time
-        elapsed_time = time.time() - pin4prevst # Calculate elapsed time for last watchdog edge
+        elapsed_time = time.time() - last_wd_edge # Calculate elapsed time for last watchdog edge
         if (5<=n and 10 <= elapsed_time): # if 5 images were saved and elapsed time is more than 10s
             break # Leave the loop, exit from script
 
