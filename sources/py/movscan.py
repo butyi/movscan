@@ -77,7 +77,7 @@ with picamera.PiCamera() as camera:
 
         # Check watchdog time
         elapsed_time = time.time() - pin4prevst # Calculate elapsed time for last watchdog edge
-        if (30 < elapsed_time): # if elapsed time is more than 30s
+        if (5<=n and 10 <= elapsed_time): # if 5 images were saved and elapsed time is more than 10s
             break # Leave the loop, exit from script
 
     # Final actions before quit from scrip
