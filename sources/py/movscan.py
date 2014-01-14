@@ -71,7 +71,6 @@ with picamera.PiCamera() as camera:
         pin7state = GPIO.input(7) # Read actual pin state
         if (pin7state <> pin7prevst): # Any edge happened, reel is turning
             last_wd_edge = time.time(); # Save the time of edge
-            print "wd"
 
         # Save watchdog pin state for edge detection
         pin7prevst = pin7state
