@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright: Bencsik János <copyright@butyi.hu>
+# Copyright: BENCSIK János <copyright@butyi.hu>
 # License : WTFPL v2 <http://www.wtfpl.net/txt/copying/>
 
 import picamera
