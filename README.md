@@ -71,8 +71,8 @@ group commands above: find *.jpg -exec … \;
 Create Video
 ============
 Create 15fps video from images:
-avconv -r 15 -f image2 -i image%05d.jpg -vcodec libx264 -crf 15 -preset slower ~/video.avi
-It is so slow (1...2 fps)
+avconv -r 15 -f image2 -i image%05d.jpg -crf 15 -b 10M -preset slower ~/video.avi
+Converting speed is ~60 fps on an 1.6GHz Ubuntu
 
 Result
 ======
