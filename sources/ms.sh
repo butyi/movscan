@@ -47,19 +47,19 @@ cd ~/$DATE # Jump to folder
 # Shoot slides of movie. The sript exits at the end of movie automaticly
 line
 echo -e "Step 2: Shooting slides\n"
-# sudo python ~/movscan/sources/py/movscan.py
+sudo python ~/movscan/sources/py/movscan.py
 
 # If the movie is Black & White (bw), than convering images to grayscale
 line
 if [  $1 == "bw" ]
 then
         echo -e "Step 3: Converting images to grayscale\n"
-	find *.jpg -exec sudo convert '{}' -type Grayscale '{}' \;
+	find *.jpg -print -exec sudo convert '{}' -type Grayscale '{}' \;
 fi
 if [  $1 == "color" ]
 then
         echo -e "Step 3: Applying auto-white-balance on images\n"
-        find *.jpg -exec ~/mytools/bash/autowhite.sh '{}' '{}' \;
+        find *.jpg -print -exec sudo bash ~/mytools/bash/autowhite.sh '{}' '{}' \;
 fi
 
 # Create video from images

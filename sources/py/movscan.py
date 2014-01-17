@@ -12,7 +12,7 @@ import RPi.GPIO as GPIO ## Import GPIO library
 with picamera.PiCamera() as camera:
 
     # Change folder where I want to save images
-    os.chdir('/home/pi/pics')
+    # os.chdir('/home/pi/pics')
     
     # Board I/O init
     GPIO.setmode(GPIO.BOARD) # Use board pin numbering
