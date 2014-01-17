@@ -1,6 +1,9 @@
 #!/bin/bash
 # Movie digitalizer scipt. ms => Movie Scan
 
+#Script configuration
+set -e # the script terminates as soon as any command fails
+
 #Functions
 display_usage() {
 	echo -e "Movie digitalizer scipt\n"
@@ -12,7 +15,7 @@ line() {
 }
 
 # Variables
-DATE=`date +%Y-%m-%d`
+DATE=`date +%F-%k-%M-%S`
 
 # if less than two arguments supplied, display usage
 if [  $# -le 1 ]
@@ -35,23 +38,16 @@ then
 	exit 0
 fi
 
-# create folder for images if does not yet exist
+# create folder for images
 line
-if [ ! -d ~/$DATE ]
-then
-        echo -e "Step 1: Creating folder"+$DATE+"\n"
-	mkdir ~/$DATE # Create folder
-        cd ~/$DATE   # Jump to images folder
-else
-        echo -e "Step 1: Erase content of folder "+$DATE+"\n"
-        cd ~/$DATE   # Jump to images folder
-        sudo rm *    # Clear the folder
-fi
+echo -e "Step 1: Creating folder $DATE\n"
+mkdir ~/$DATE # Create the folder
+cd ~/$DATE # Jump to folder
 
 # Shoot slides of movie. The sript exits at the end of movie automaticly
 line
 echo -e "Step 2: Shooting slides\n"
-sudo python ~/movscan/sources/py/movscan.py
+# sudo python ~/movscan/sources/py/movscan.py
 
 # If the movie is Black & White (bw), than convering images to grayscale
 line
@@ -71,5 +67,5 @@ line
 echo -e "Step 4: Merging images to video\n"
 avconv -r 15 -f image2 -i image%05d.jpg -crf 15 -b 10M -preset slower ~/$DATE/video-$DATE.avi
 
-echo -e "O.K. Video is available in ~/"+$DATE+" folder\n"
+echo -e "Hurray! Video is now available: ~/$DATE/video-$DATE.avi\n"
 
