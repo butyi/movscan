@@ -19,6 +19,12 @@ if [  $# -le 1 ]
 then
         echo -e "Missing parameter!\n"
  	display_usage
+fi
+
+# if less than two arguments supplied, display usage
+if [  $# -lt 1 ]
+then
+	display_usage
 	exit 1
 fi
 
@@ -41,9 +47,6 @@ else
         cd ~/$DATE   # Jump to images folder
         sudo rm *    # Clear the folder
 fi
-
-# Jump to images folder
-cd ~/$DATE
 
 # Shoot slides of movie. The sript exits at the end of movie automaticly
 line
