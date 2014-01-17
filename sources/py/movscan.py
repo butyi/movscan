@@ -25,14 +25,14 @@ with picamera.PiCamera() as camera:
     # Switch on camera 
     # (following setting needs active camera)
     width = 800 # Max resolution: 2592 x 1944
-    camera.resolution = width,(width*3/4) # Image size (digit zoom, not resize!)
     camera.start_preview() 
 
     # Adjust camera for my environment 
-    camera.crop=0.43,0.26,0.5,0.5 # Crop active CCD part
+    camera.crop=0.30,0.19,0.55,0.55 # Crop active CCD part
     camera.vflip = True # Mirroring is needed due to optic
+    camera.preview_fullscreen = True # To see same what will be saved
     camera.resolution = width,(width*3/4) # Image size (digit zoom, not resize!)
-    preview_fullscreen = True # To see same what will be saved
+    camera.awb_mode = 'incandescent' # Normal bulb, manual white balance to prevent insable white-balance
     time.sleep(3) # Wait to camera auto settings
 
     # Edge detect variables for shoot detection 
@@ -77,8 +77,10 @@ with picamera.PiCamera() as camera:
 
         # Check watchdog time
         elapsed_time = time.time() - last_wd_edge # Calculate elapsed time for last watchdog edge
-        if (5<=n and 10 <= elapsed_time): # if 5 images were saved and elapsed time is more than 10s
+        if (10 <= n and 30 <= elapsed_time): # if 10 images were saved and elapsed time is more than 30s
             break # Leave the loop, exit from script
+        if (n < 10): # reinit wd timer in the begining of movie
+           last_wd_edge = time.time() + 10 # Now + 10sec
 
     # Final actions before quit from scrip
     camera.stop_preview() # Switch off the camera
