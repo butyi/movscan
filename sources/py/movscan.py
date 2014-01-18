@@ -11,9 +11,12 @@ import RPi.GPIO as GPIO ## Import GPIO library
 # Create object
 with picamera.PiCamera() as camera:
 
-    # Change folder where I want to save images
-    # os.chdir('/home/pi/pics')
-    
+    # Switch off camera LED to not disturb the image through optic
+    ## Be aware when you first use the LED property it will set the 
+    ## GPIO library to Broadcom (BCM) mode with GPIO.setmode(GPIO.BCM)
+    # Thats why it is set before GPIO Board I/O init
+    camera.led = False
+     
     # Board I/O init
     GPIO.setmode(GPIO.BOARD) # Use board pin numbering
     GPIO.setup(11, GPIO.IN) # Setup GPIO Pin 11 to shot input
@@ -25,14 +28,18 @@ with picamera.PiCamera() as camera:
     # Switch on camera 
     # (following setting needs active camera)
     width = 800 # Max resolution: 2592 x 1944
+    camera.resolution = width,(width*3/4) # Image size (digit zoom, not resize!)
+    camera.framerate = 5 # Limit camera speed to have more CPU runtime
+
+    # Start camera
     camera.start_preview() 
 
     # Adjust camera for my environment 
-    camera.crop=0.30,0.19,0.55,0.55 # Crop active CCD part
+    camera.crop = 0.30,0.19,0.55,0.55 # Crop active CCD part
     camera.vflip = True # Mirroring is needed due to optic
     camera.preview_fullscreen = True # To see same what will be saved
-    camera.resolution = width,(width*3/4) # Image size (digit zoom, not resize!)
     camera.awb_mode = 'incandescent' # Normal bulb, manual white balance to prevent insable white-balance
+    camera.video_stabilization = True # To stabilize mechanical moving os slides
     time.sleep(3) # Wait to camera auto settings
 
     # Edge detect variables for shoot detection 
@@ -53,13 +60,24 @@ with picamera.PiCamera() as camera:
         pin11state = GPIO.input(11)
         if (pin11state == GPIO.LOW and pin11prevst == GPIO.HIGH): # Falling edge happened
 
+            # Create file name
+            filename = 'image%05d.jpg' % n # Numberred file name for later video creation
+
             # Take the picture
-            camera.capture_sequence((
-                'image%05d.jpg' % n # Numberred file name for video creation later on
-                for p in range(1) # One picture is saved only
-                ), use_video_port=True) # use_video_port=True speeds up the camera
-            print "%d" % n # Inform me about operating
-            n = n + 1 # Increase image number
+            camera.capture(
+                 filename,
+                 format = None, # If format is None, the method will attempt to guess the required image format from the extension of output 
+                 use_video_port = True, # If you need rapid capture up to the rate of video frames, set this to True
+                 resize = None, # Resize
+                 quality = 80, # Defines the quality of the JPEG encoder as an integer ranging from 1 to 100.
+                 thumbnail = None # Specifying None disables thumbnail generation.
+                 )
+
+            # Inform me about operating
+            print filename 
+
+            # Increase image number
+            n = n + 1
 
         # Save shoot pin state for edge detection
         pin11prevst = pin11state
