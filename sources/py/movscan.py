@@ -3,7 +3,7 @@
 # Copyright: BENCSIK János <copyright@butyi.hu>
 # License : WTFPL v2 <http://www.wtfpl.net/txt/copying/>
 
-import picamera
+import picamera # Reference: http://picamera.readthedocs.org
 import time
 import os
 import RPi.GPIO as GPIO ## Import GPIO library
