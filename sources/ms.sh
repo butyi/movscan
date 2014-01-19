@@ -58,8 +58,8 @@ then
 fi
 if [  $1 == "color" ]
 then
-        echo -e "Step 3: Applying auto-white-balance on images\n"
-        find *.jpg -print -exec sudo bash ~/mytools/bash/autowhite.sh '{}' '{}' \;
+        echo -e "Step 3 Skipped: Applying auto-white-balance on images\n"
+        # find *.jpg -print -exec sudo bash ~/mytools/bash/autowhite.sh '{}' '{}' \;
 fi
 
 # Create video from images

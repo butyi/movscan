@@ -29,18 +29,19 @@ with picamera.PiCamera() as camera:
     # (following setting needs active camera)
     width = 800 # Max resolution: 2592 x 1944
     camera.resolution = width,(width*3/4) # Image size (digit zoom, not resize!)
-    camera.framerate = 5 # Limit camera speed to have more CPU runtime
+    camera.framerate = 10 # Limit camera speed to have more CPU runtime
 
     # Start camera
     camera.start_preview() 
 
     # Adjust camera for my environment 
-    camera.crop = 0.30,0.19,0.55,0.55 # Crop active CCD part
+    camera.crop = 0.28,0.26,0.55,0.55 # Crop active CCD part
     camera.vflip = True # Mirroring is needed due to optic
     camera.preview_fullscreen = True # To see same what will be saved
-    camera.awb_mode = 'incandescent' # Normal bulb, manual white balance to prevent insable white-balance
+    camera.awb_mode = 'flash' # Normal bulb, manual white balance to prevent insable white-balance
     camera.video_stabilization = True # To stabilize mechanical moving os slides
-    time.sleep(3) # Wait to camera auto settings
+    time.sleep(5) # Wait to camera auto settings
+    camera.stop_preview() # To have more CPU runtime
 
     # Edge detect variables for shoot detection 
     # (GPIO.wait_for_edge is not proper, because during waiting edge
@@ -69,7 +70,7 @@ with picamera.PiCamera() as camera:
                  format = None, # If format is None, the method will attempt to guess the required image format from the extension of output 
                  use_video_port = True, # If you need rapid capture up to the rate of video frames, set this to True
                  resize = None, # Resize
-                 quality = 80, # Defines the quality of the JPEG encoder as an integer ranging from 1 to 100.
+                 quality = 20, # Defines the quality of the JPEG encoder as an integer ranging from 1 to 100.
                  thumbnail = None # Specifying None disables thumbnail generation.
                  )
 
