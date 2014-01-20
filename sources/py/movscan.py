@@ -7,6 +7,7 @@
 import picamera # Reference: http://picamera.readthedocs.org
 import time
 import os
+import sys
 import RPi.GPIO as GPIO ## Import GPIO library
 
 # Check parameter
@@ -51,7 +52,8 @@ with picamera.PiCamera() as camera:
     if "-m" in arguments: # If -m (monochrome) parameter is in the arguments
         camera.color_effects = (128,128) # Black and White image
     time.sleep(5) # Wait to camera auto settings
-    camera.stop_preview() # To have more CPU runtime
+    if "-p" not in arguments: # If preview is needed
+        camera.stop_preview() # Show preview
 
     # Edge detect variables for shoot detection 
     # (GPIO.wait_for_edge is not proper, because during waiting edge
