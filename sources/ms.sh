@@ -50,10 +50,10 @@ line
 if [  $1 == "-m" ]
 then
         echo -e "Step 2: Shooting monocrome slides\n"
-        sudo python ~/movscan/sources/py/movscan.py -m
+        sudo python ~/movscan/sources/py/movscan.py -m -p
 else
         echo -e "Step 2: Shooting color slides\n"
-        sudo python ~/movscan/sources/py/movscan.py
+        sudo python ~/movscan/sources/py/movscan.py -p
 fi
 
 # Create video from images
