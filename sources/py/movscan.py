@@ -7,8 +7,10 @@
 import picamera # Reference: http://picamera.readthedocs.org
 import time
 import os
+import io
 import sys
-import RPi.GPIO as GPIO ## Import GPIO library
+import thread # For safe and fast file save
+import RPi.GPIO as GPIO # Import GPIO library
 
 # Check parameter
 if len(sys.argv)<1:
@@ -16,6 +18,9 @@ if len(sys.argv)<1:
 
 # Get arguments
 arguments = str(sys.argv)
+
+# Reserve buffer for images in memory
+stream = io.BytesIO()
 
 # Create object
 with picamera.PiCamera() as camera:
@@ -79,15 +84,26 @@ with picamera.PiCamera() as camera:
             # Measure image time
             captime = time.time();
 
+            # Reserve buffer for images in memory
+            stream = io.BytesIO()
+
             # Take the picture
             camera.capture(
-                 filename,
-                 format = None, # If format is None, the method will attempt to guess the required image format from the extension of output 
+                 stream,
+                 format = 'jpeg', # Must be specified in case of stream 
                  use_video_port = True, # If you need rapid capture up to the rate of video frames, set this to True
                  resize = None, # Resize
                  quality = 20, # Defines the quality of the JPEG encoder as an integer ranging from 1 to 100.
                  thumbnail = None # Specifying None disables thumbnail generation.
                  )
+
+            # Save image
+            stream.seek(0) # Rewing in stream
+            fo = open(filename, "wb")
+            fo.write(stream.read())
+            # Close opend file
+            fo.close()
+            stream.close()
 
             # Measure image time
             captime = time.time() - captime
