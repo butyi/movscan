@@ -18,20 +18,6 @@ line() {
 # Variables
 DATE=`date +%F-%k-%M-%S`
 
-# if less than two arguments supplied, display usage
-if [  $# -le 1 ]
-then
-        echo -e "Missing parameter!\n"
- 	display_usage
-fi
-
-# if less than two arguments supplied, display usage
-if [  $# -lt 1 ]
-then
-	display_usage
-	exit 1
-fi
-
 # check whether user had supplied -h or --help . If yes display usage
 if [[ ( $# == "--help") ||  $# == "-h" ]]
 then
