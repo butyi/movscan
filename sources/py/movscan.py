@@ -76,6 +76,9 @@ with picamera.PiCamera() as camera:
             # Create file name
             filename = 'image%05d.jpg' % n # Numberred file name for later video creation
 
+            # Measure image time
+            captime = time.time();
+
             # Take the picture
             camera.capture(
                  filename,
@@ -86,8 +89,11 @@ with picamera.PiCamera() as camera:
                  thumbnail = None # Specifying None disables thumbnail generation.
                  )
 
+            # Measure image time
+            captime = time.time() - captime
+
             # Inform me about operating
-            print filename 
+            print filename + " (" + captime + " s)" 
 
             # Increase image number
             n = n + 1
