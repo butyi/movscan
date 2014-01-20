@@ -91,9 +91,12 @@ with picamera.PiCamera() as camera:
 
             # Measure image time
             captime = time.time() - captime
+            warning = " "
+            if 0.2 < captime:
+                 warning = "  " + str(captime) + " s !!!"
 
             # Inform me about operating
-            print filename + " (" + captime + " s)" 
+            print filename + warning 
 
             # Increase image number
             n = n + 1
