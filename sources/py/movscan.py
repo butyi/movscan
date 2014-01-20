@@ -2,11 +2,19 @@
 # -*- coding: utf-8 -*-
 # Copyright: BENCSIK János <copyright@butyi.hu>
 # License : WTFPL v2 <http://www.wtfpl.net/txt/copying/>
+# parameter 1: [m|c]
 
 import picamera # Reference: http://picamera.readthedocs.org
 import time
 import os
 import RPi.GPIO as GPIO ## Import GPIO library
+
+# Check parameter
+if len(sys.argv)<1:
+    print "Error! Too few argument."
+
+# Get arguments
+arguments = str(sys.argv)
 
 # Create object
 with picamera.PiCamera() as camera:
@@ -40,6 +48,8 @@ with picamera.PiCamera() as camera:
     camera.preview_fullscreen = True # To see same what will be saved
     camera.awb_mode = 'flash' # Normal bulb, manual white balance to prevent insable white-balance
     camera.video_stabilization = True # To stabilize mechanical moving os slides
+    if "-m" in arguments: # If -m (monochrome) parameter is in the arguments
+        camera.color_effects = (128,128) # Black and White image
     time.sleep(5) # Wait to camera auto settings
     camera.stop_preview() # To have more CPU runtime
 
