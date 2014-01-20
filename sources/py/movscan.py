@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # Copyright: BENCSIK JÃ¡nos <copyright@butyi.hu>
 # License : WTFPL v2 <http://www.wtfpl.net/txt/copying/>
-# parameter 1: [m|c]
+# parameter 1: -m : monochrome, -p : show preview
 
 import picamera # Reference: http://picamera.readthedocs.org
 import time
@@ -12,9 +12,26 @@ import sys
 import thread # For safe and fast file save
 import RPi.GPIO as GPIO # Import GPIO library
 
+
+# Define a function for the file save thread
+def save_image( stream, filename):
+    stream.seek(0) # Rewing in stream
+    fo = open(filename, "wb") # Open file
+    fo.write(stream.read()) # Write the data
+    fo.close() # Close opened file
+    stream.close() # Close stream
+
+
 # Check parameter
 if len(sys.argv)<1:
     print "Error! Too few argument."
+
+if "-h" in arguments: # If -h (help) parameter is in the arguments, than helpÅ
+    print "Usage: sudo python movscan.py [-m|-p|-h]"
+    print "-m: monochrome"
+    print "-p: show preview"
+    print "-h: help"
+    exit
 
 # Get arguments
 arguments = str(sys.argv)
@@ -95,21 +112,19 @@ with picamera.PiCamera() as camera:
                  resize = None, # Resize
                  quality = 20, # Defines the quality of the JPEG encoder as an integer ranging from 1 to 100.
                  thumbnail = None # Specifying None disables thumbnail generation.
-                 )
+                )
 
-            # Save image
-            stream.seek(0) # Rewing in stream
-            fo = open(filename, "wb")
-            fo.write(stream.read())
-            # Close opend file
-            fo.close()
-            stream.close()
+            # Save image in a different thread to not lose any image due to sporadicaly slow SD card access
+            try:
+                thread.start_new_thread( save_image, (stream,filename) )
+            except:
+                print "Error: unable to start thread"
 
-            # Measure image time
+            # Measure image time and warn user if it was longer than 200ms
             captime = time.time() - captime
             warning = " "
             if 0.2 < captime:
-                 warning = "  " + str(captime) + " s !!!"
+                warning = "  " + str(captime) + " s !!!"
 
             # Inform me about operating
             print filename + warning 
