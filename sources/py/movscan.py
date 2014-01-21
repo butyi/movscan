@@ -19,12 +19,11 @@ def save_image( stream, filename):
     fo = open(filename, "wb") # Open file
     fo.write(stream.read()) # Write the data
     fo.close() # Close opened file
-    stream.close() # Close stream
-
 
 # Check parameter
 if len(sys.argv)<1:
     print "Error! Too few argument."
+    exit
 
 # Get arguments
 arguments = str(sys.argv)
@@ -111,7 +110,7 @@ with picamera.PiCamera() as camera:
                  format = 'jpeg', # Must be specified in case of stream 
                  use_video_port = True, # If you need rapid capture up to the rate of video frames, set this to True
                  resize = None, # Resize
-                 quality = 20, # Defines the quality of the JPEG encoder as an integer ranging from 1 to 100.
+                 quality = 50, # Defines the quality of the JPEG encoder as an integer ranging from 1 to 100.
                  thumbnail = None # Specifying None disables thumbnail generation.
                 )
 
