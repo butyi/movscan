@@ -33,7 +33,7 @@ cd ~/$DATE # Jump to folder
 
 # Shoot slides of movie. The sript exits at the end of movie automaticly
 line
-if [  $1 == "-m" ]
+if [[ $# == "-m" ]]
 then
         echo -e "Step 2: Shooting monocrome slides\n"
         sudo python ~/movscan/sources/py/movscan.py -m -p
@@ -45,7 +45,7 @@ fi
 # Create video from images
 line
 echo -e "Step 3: Creating 15fps video by concatenating images\n"
-avconv -r 15 -f image2 -i image%05d.jpg -crf 15 -b 10M -preset slower ~/$DATE/video-$DATE.avi
+avconv -r 15 -f image2 -i image%05d.jpg -crf 15 -b 10M -preset slower ~/video-$DATE.avi
 
 echo -e "Hurray! Video is now available: ~/$DATE/video-$DATE.avi\n"
 

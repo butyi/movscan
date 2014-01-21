@@ -26,15 +26,16 @@ def save_image( stream, filename):
 if len(sys.argv)<1:
     print "Error! Too few argument."
 
+# Get arguments
+arguments = str(sys.argv)
+
+# Print help
 if "-h" in arguments: # If -h (help) parameter is in the arguments, than helpÅ
     print "Usage: sudo python movscan.py [-m|-p|-h]"
     print "-m: monochrome"
     print "-p: show preview"
     print "-h: help"
     exit
-
-# Get arguments
-arguments = str(sys.argv)
 
 # Reserve buffer for images in memory
 stream = io.BytesIO()
