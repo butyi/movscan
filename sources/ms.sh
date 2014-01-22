@@ -16,7 +16,7 @@ line() {
 }
 
 # Variables
-DATE=`date +%F-%k-%M-%S`
+DATE=`date +%F`
 
 # check whether user had supplied -h or --help . If yes display usage
 if [[ ( $# == "--help") ||  $# == "-h" ]]
@@ -45,7 +45,7 @@ fi
 # Create video from images
 line
 echo -e "Step 3: Creating 15fps video by concatenating images\n"
-avconv -r 15 -f image2 -i image%05d.jpg -crf 15 -b 10M -preset slower ~/video-$DATE.avi
+avconv -r 15 -f image2 -i image%05d.jpg -crf 15 -b 10M -preset slower ~/$DATE/video-$DATE.avi
 
 echo -e "Hurray! Video is now available: ~/$DATE/video-$DATE.avi\n"
 

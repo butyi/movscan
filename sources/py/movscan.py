@@ -69,7 +69,7 @@ with picamera.PiCamera() as camera:
     camera.crop = 0.28,0.26,0.55,0.55 # Crop active CCD part
     camera.vflip = True # Mirroring is needed due to optic
     camera.preview_fullscreen = True # To see same what will be saved
-    camera.awb_mode = 'flash' # Normal bulb, manual white balance to prevent insable white-balance
+    camera.awb_mode = 'off' # Normal bulb, manual white balance to prevent insable white-balance
     camera.video_stabilization = True # To stabilize mechanical moving os slides
     if "-m" in arguments: # If -m (monochrome) parameter is in the arguments
         camera.color_effects = (128,128) # Black and White image
@@ -110,7 +110,7 @@ with picamera.PiCamera() as camera:
                  format = 'jpeg', # Must be specified in case of stream 
                  use_video_port = True, # If you need rapid capture up to the rate of video frames, set this to True
                  resize = None, # Resize
-                 quality = 50, # Defines the quality of the JPEG encoder as an integer ranging from 1 to 100.
+                 quality = 25, # Defines the quality of the JPEG encoder as an integer ranging from 1 to 100.
                  thumbnail = None # Specifying None disables thumbnail generation.
                 )
 
