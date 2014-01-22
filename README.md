@@ -16,7 +16,7 @@ This was created by a 30fps video camera.
 
 Cine-projector
 =============
-I used the Russian projector what I have
+I used the Russian projector what I have (Lomo Russ)
 
 Camera
 ======
@@ -24,6 +24,7 @@ Target to have a camera which
 - Has remote shoot possibility
 - Has enough resolution
 - Cheap
+- Flexible
 
 Best: Raspberry Pi with RaspiCam
 
@@ -33,40 +34,28 @@ Speed
 Should be do as fast as possible
 - raspistill needs 1s to make an image
 - PiCamera python interface can make image every 650ms
-- Calling capture_sequence with “use_video_port = True﻿” option, it can make image every 140ms
+- Calling capture with “use_video_port = True﻿” option, it can make image every 140ms
 
 Shoot sensor
 ============
 Opto gate was built in into the machine, which gives one pulse for every movie slide.
 
-Difficulties
+File save
 ============
-When PiCamera worked, I have written a python script to try GPIO also. Name io.py. After that PiCamera python stopped to work. “io.open - AttributeError: 'module' object has no attribute 'open' ”
-Solution: my io.py in home folder overwrote the original python io module.
+To save a 150kB image to SD card is sometime 20ms, average is 150ms, but unfortunately sometime 2-3s. To not lose any slide, the script shoots the images into memory, and parallel task saves them to SD card. With this solution no images are lost.  
 :-)
 
 RaspiStill
 ==========
-While python did not worked, I have tried RaspiStill signal control. With -s option it waits  for SIGUSR1 to shoot.
+I have tried RaspiStill signal control. With -s option it waits  for SIGUSR1 to shoot.
 I have written a C module to send SIGUSR1 signal when edge occurred on GPIO input.
-Of course this was slow (1fps)
+Of course this was so slow (1fps)
 (movscan.c)
 
-PiCamera python again
-=====================
-With WEB help io.py was renamed, Python gets working again.
+PiCamera python
+===============
 Turned out, that in PiCamera, resolution change realises digital zoom (uses center part of CCD) → fast shot with high resolution → :-)
 (movscan.py)
-
-Thousand of images 
-==================
-In case of B&W movies, images must be converted to B&W:
-convert orig.jpg -type Grayscale ff.jpg
-Auto white balance can be applied:
-./autowhite.sh orig.jpg corr.jpg
-central point mirroring due to optic:
-convert orig.jpg -flip flipped.jpg
-group commands above: find *.jpg -exec … \;
 
 Create Video
 ============
@@ -80,13 +69,13 @@ First test scanning result:
 http://youtu.be/uJuZ71KQGfk
 
 How to done it video:
-http://youtu.be/zBhdDtUluQk
+http://youtu.be/PBL8H71WICk
 
 Thank you for interesting!
 =========================
-V1.00
+V1.01
 Butyi PlusPlus
-2014.01.11.
+2014.01.21.
 
 www.butyi.hu
 www.butyi.mooo.com
