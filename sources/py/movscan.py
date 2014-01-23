@@ -66,7 +66,7 @@ with picamera.PiCamera() as camera:
     camera.start_preview() 
 
     # Adjust camera for my environment 
-    camera.crop = 0.28,0.26,0.55,0.55 # Crop active CCD part
+    camera.crop = 0.27,0.25,0.55,0.55 # Crop active CCD part
     camera.vflip = True # Mirroring is needed due to optic
     camera.preview_fullscreen = True # To see same what will be saved
     camera.awb_mode = 'off' # Normal bulb, manual white balance to prevent insable white-balance
