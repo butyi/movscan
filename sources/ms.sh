@@ -7,7 +7,8 @@ set -e # the script terminates as soon as any command fails
 #Functions
 display_usage() {
 	echo -e "Movie digitalizer scipt\n"
-	echo -e "Usage:\n$0 [-m]\n"
+	echo -e "Usage:\n$0 n [-m]\n"
+        echo -e "   n : number of film in format %02d\n"
         echo -e "  -m : Monochrome images\n"
 }
 
@@ -15,8 +16,12 @@ line() {
         echo -e "------------------------------------\n"
 }
 
+
+# Read my NAS account data (NAS_USER, NAS_PASS)
+. ~/.my-nas-account
+
 # Variables
-DATE=`date +%F`
+FILENAME=mozgofilm-$1.avi
 
 # check whether user had supplied -h or --help . If yes display usage
 if [[ ( $# == "--help") ||  $# == "-h" ]]
@@ -25,15 +30,14 @@ then
 	exit 0
 fi
 
-# create folder for images
+# jump to temp folder where images will be stored
 line
-echo -e "Step 1: Creating folder $DATE\n"
-mkdir ~/$DATE # Create the folder
-cd ~/$DATE # Jump to folder
+echo -e "Step 1: Jump to ~/temp folder\n"
+cd ~/temp
 
 # Shoot slides of movie. The sript exits at the end of movie automaticly
 line
-if [[ $# == "-m" ]]
+if [[ $2 == "-m" ]]
 then
         echo -e "Step 2: Shooting monocrome slides\n"
         sudo python ~/movscan/sources/py/movscan.py -m -p
@@ -45,12 +49,34 @@ fi
 # Create video from images
 line
 echo -e "Step 3: Creating 15fps video by concatenating images\n"
-avconv -r 15 -f image2 -i image%05d.jpg -crf 15 -b 10M -preset slower video-$DATE.avi
+avconv -r 15 -f image2 -i image%05d.jpg -crf 15 -b 10M -preset slower ~/$FILENAME
 
-# Tar images into one big file to be faster the copy
+# delete images
 line
-echo -e "Step 4: Pack images into one big file\n"
-tar --remove-files -cvf images-$DATE.tar *
+echo -e "Step 4: Delete images\n"
+sudo rm *
 
+# mount NAS
+line
+echo -e "Step 5: Mount NAS\n"
+
+# mount NAS if it is not yet mounted
+if ! mountpoint -q /home/pi/nas
+then
+  # not mounted
+  sudo mount -t cifs //192.168.0.134/volume_1 /home/pi/nas -o username=$NAS_USER,password=$NAS_PASS
+fi
+
+# copy video to NAS
+line
+echo -e "Step 6: Copy video file to NAS\n"
+cp  ~/$FILENAME ~/nas/SAJAT/HOME_VIDEO/8mm/
+
+# delete video
+line
+echo -e "Step 7: Delete video\n"
+sudo rm ~/$FILENAME
+
+#
 echo -e "Hurray, Finished!\n"
 
