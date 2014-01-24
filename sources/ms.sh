@@ -21,7 +21,8 @@ line() {
 . ~/.my-nas-account
 
 # Variables
-FILENAME=mozgofilm-$1.avi
+FOLDERNAME=mozgofilm-$1
+FILENAME=$FOLDERNAME.avi
 
 # check whether user had supplied -h or --help . If yes display usage
 if [[ ( $# == "--help") ||  $# == "-h" ]]
@@ -56,27 +57,25 @@ line
 echo -e "Step 4: Delete images\n"
 sudo rm *
 
-# mount NAS
-line
-echo -e "Step 5: Mount NAS\n"
-
 # mount NAS if it is not yet mounted
 if ! mountpoint -q /home/pi/nas
 then
-  # not mounted
+  line
+  echo -e "Step 5: Mount NAS\n"
   sudo mount -t cifs //192.168.0.134/volume_1 /home/pi/nas -o username=$NAS_USER,password=$NAS_PASS
 fi
 
 # copy video to NAS
 line
 echo -e "Step 6: Copy video file to NAS\n"
-cp  ~/$FILENAME ~/nas/SAJAT/HOME_VIDEO/8mm/
+mkdir ~/nas/SAJAT/HOME_VIDEO/8mm/$FOLDERNAME
+cp  ~/$FILENAME ~/nas/SAJAT/HOME_VIDEO/8mm/$FOLDERNAME
 
 # delete video
 line
 echo -e "Step 7: Delete video\n"
 sudo rm ~/$FILENAME
 
-#
+
 echo -e "Hurray, Finished!\n"
 
