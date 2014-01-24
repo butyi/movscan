@@ -71,9 +71,14 @@ echo -e "Step 6: Copy video file to NAS\n"
 mkdir ~/nas/SAJAT/HOME_VIDEO/8mm/$FOLDERNAME
 cp  ~/$FILENAME ~/nas/SAJAT/HOME_VIDEO/8mm/$FOLDERNAME
 
+# upload video to YouTube
+line
+echo -e "Step 7: Upload video to YouTube\n"
+youtube-upload --email=$GMAIL --password=$GPASS --unlisted --title="$FOLDERNAME" --description="$FOLDERNAME" --category=People --keywords="8mm, film, movie, cine-projector, raspberry pi, raspicam, scan, digitalize" ~/$FILENAME
+
 # delete video
 line
-echo -e "Step 7: Delete video\n"
+echo -e "Step 8: Delete video\n"
 sudo rm ~/$FILENAME
 
 
