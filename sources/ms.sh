@@ -18,7 +18,7 @@ line() {
 
 
 # Read my NAS account data (NAS_USER, NAS_PASS)
-. ~/.my-nas-account
+. ~/.my-accounts
 
 # Variables
 FOLDERNAME=mozgofilm-$1
