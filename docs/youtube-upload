@@ -18,5 +18,8 @@ sudo python setup.py install
 download http://python-distribute.org/distribute_setup.py
 run it: python distribute_setup.py
 
+************* Install python-pycurl
+sudo aptitude install python-pycurl
+
 ************* try it!
 youtube-upload --email=$GMAIL --password=$GPASS --unlisted --title="linux bash upload" --description="Some description" --category=People --keywords="linux, bash" ~/test.avi
