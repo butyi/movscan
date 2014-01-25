@@ -18,6 +18,7 @@ line() {
 . ~/.my-accounts
 
 # Variables
+OnLine=0
 FOLDERNAME=mozgofilm-$1
 FILENAME=$FOLDERNAME.avi
 NASPATH=~/nas/SAJAT/HOME_VIDEO/8mm
@@ -81,35 +82,44 @@ if [ $? -ne 0 ]; then
   echo -e "  WARNING! Cannot delete images."
 fi
 
+# Check internet connection (Thanks to Jesse: http://stackoverflow.com/users/2083761/jesse)
+for interface in $(ls /sys/class/net/ | grep -v lo);
+do
+  if [[ $(cat /sys/class/net/$interface/carrier) = 1 ]]; then OnLine=1; fi
+done
+
 # copy video to NAS if possible
 line
 echo -e "----- Copy video to NAS\n"
-if ! mountpoint -q /home/pi/nas
-then
-  echo -e "  - Mount NAS\n"
-  sudo mount -t cifs //192.168.0.134/volume_1 /home/pi/nas -o username=$NAS_USER,password=$NAS_PASS
-  # return value must not be tested here, because must continue even if mount has failed
-fi
-
-if mountpoint -q /home/pi/nas # If mount is now visible
-then
-  # copy video to NAS
-  echo -e "  - Copy video\n"
-  if [ ! -d $NASPATH/$FOLDERNAME ] #if folder does not exist on NAS
+if ! [ $OnLine ]; then echo "  There is not LAN connection. NAS save is skipped."; fi
+if [ $OnLine ]; then
+  if ! mountpoint -q /home/pi/nas
   then
-    mkdir $NASPATH/$FOLDERNAME # Create it
+    echo -e "  - Mount NAS\n"
+    sudo mount -t cifs //192.168.0.134/volume_1 /home/pi/nas -o username=$NAS_USER,password=$NAS_PASS
+    # return value must not be tested here, because must continue even if mount has failed
   fi
-  if [ -d $NASPATH/$FOLDERNAME ] #if folder exists on NAS
+
+  if mountpoint -q /home/pi/nas # If mount is now visible
   then
-    if [ -f $NASPATH/$FOLDERNAME/$FILENAME ] # if same name is already in the folder
+    # copy video to NAS
+    echo -e "  - Copy video\n"
+    if [ ! -d $NASPATH/$FOLDERNAME ] #if folder does not exist on NAS
     then
-      rm $NASPATH/$FOLDERNAME/$FILENAME # Delete it
+      mkdir $NASPATH/$FOLDERNAME # Create it
     fi
-    if [ ! -f $NASPATH/$FOLDERNAME/$FILENAME ] # if same file is not in the folder
+    if [ -d $NASPATH/$FOLDERNAME ] #if folder exists on NAS
     then
-      cp ~/$FILENAME $NASPATH/$FOLDERNAME # Copy the new file to NAS
-      if [ $? -eq 0 ]; then
-        NASSAVE=1 # NAS save was successfull
+      if [ -f $NASPATH/$FOLDERNAME/$FILENAME ] # if same name is already in the folder
+      then
+        rm $NASPATH/$FOLDERNAME/$FILENAME # Delete it
+      fi
+      if [ ! -f $NASPATH/$FOLDERNAME/$FILENAME ] # if same file is not in the folder
+      then
+        cp ~/$FILENAME $NASPATH/$FOLDERNAME # Copy the new file to NAS
+        if [ $? -eq 0 ]; then
+          NASSAVE=1 # NAS save was successfull
+        fi
       fi
     fi
   fi
@@ -119,11 +129,6 @@ fi
 line
 echo -e "----- Upload video to YouTube\n"
 
-# Check internet connection (Thanks to Jesse: http://stackoverflow.com/users/2083761/jesse)
-for interface in $(ls /sys/class/net/ | grep -v lo);
-do
-  if [[ $(cat /sys/class/net/$interface/carrier) = 1 ]]; then OnLine=1; fi
-done
 if ! [ $OnLine ]; then echo "  There is not Internet connection. YouTube upload is skipped."; fi
 if [ $OnLine ]; then
   if [ -f ~/youtube-link ] # if previous link still exists
