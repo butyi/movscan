@@ -1,9 +1,16 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
+# Copyright: BENCSIK János <copyright@butyi.hu>
+# License : WTFPL v2 <http://www.wtfpl.net/txt/copying/>
+# parameter 1: gmail address as user name for gmail account
+# parameter 2: password from the gmail account
+# parameter 3: name of video file (should be talkative)
+# parameter 4: youtube link to video
+
 import os, re
 import sys
 import smtplib
  
-#from email.mime.image import MIMEImage
 from email import encoders
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
