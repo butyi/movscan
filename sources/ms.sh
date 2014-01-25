@@ -35,9 +35,14 @@ fi
 line
 echo -e "----- Jump to ~/temp folder\n"
 cd ~/temp
-if [ $? -ne 0 ]; then
+if [ $? -ne 0 ] # cd command faults
+then
   echo -e "ERROR! Cannot jump to ~/temp folder."
   exit
+fi
+if [ "$(ls -A ~/temp)" ] # If temp folder is not empty
+then
+  sudo rm * # Delete all images in folder
 fi
 
 # Shoot slides of movie. The sript exits at the end of movie automaticly
@@ -57,7 +62,11 @@ fi
 
 # Create video from images
 line
-echo -e "Step 3: Creating 15fps video by concatenating images\n"
+echo -e "----- Creating 15fps video by concatenating images\n"
+if [ -f ~/$FILENAME ] # if there is video file with same name
+then
+  rm ~/$FILENAME # delete it
+fi
 avconv -r 15 -f image2 -i image%05d.jpg -crf 15 -b 10M -preset slower ~/$FILENAME
 if [ $? -ne 0 ]; then
   echo -e "ERROR! Cannot make video."
@@ -91,15 +100,16 @@ then
     mkdir $NASPATH/$FOLDERNAME # Create it
   fi
   if [ -d $NASPATH/$FOLDERNAME ] #if folder exists on NAS
+  then
     if [ -f $NASPATH/$FOLDERNAME/$FILENAME ] # if same name is already in the folder
     then
       rm $NASPATH/$FOLDERNAME/$FILENAME # Delete it
     fi
     if [ ! -f $NASPATH/$FOLDERNAME/$FILENAME ] # if same file is not in the folder
+    then
       cp ~/$FILENAME $NASPATH/$FOLDERNAME # Copy the new file to NAS
       if [ $? -eq 0 ]; then
         NASSAVE=1 # NAS save was successfull
-        exit
       fi
     fi
   fi
@@ -143,9 +153,8 @@ fi
 if [ $YOUTUBE ]; then
   line
   echo -e "----- Send report e-mail\n"
-  python sendmail.py $GAMIL $GPASS $FOLDERNAME `cat ~/youtube-link`
+  python /home/pi/movscan/sources/py/sendmail.py $GPASS $FOLDERNAME $(<~/youtube-link)
 fi
-
 
 echo -e "Hurray, Finished!\n"
 

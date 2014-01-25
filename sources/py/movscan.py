@@ -74,7 +74,7 @@ with picamera.PiCamera() as camera:
     camera.video_stabilization = True # To stabilize mechanical moving os slides
     if "-m" in arguments: # If -m (monochrome) parameter is in the arguments
         camera.color_effects = (128,128) # Black and White image
-    time.sleep(5) # Wait to camera auto settings
+    time.sleep(1) # Wait to camera auto settings
     if "-p" not in arguments: # If preview is needed
         camera.stop_preview() # Show preview
 

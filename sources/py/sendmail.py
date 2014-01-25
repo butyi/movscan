@@ -21,15 +21,15 @@ SMTP_SERVER = 'smtp.gmail.com'
 SMTP_PORT = 587
 
  
-sender = sys.argv[1]
-password = sys.argv[2]
+sender = 'butyi.hu@gmail.com'
+password = sys.argv[1]
 recipient = 'butyi.hu@gmail.com; movscan@butyi.hu'
 subject = 'MovScan report'
 message = 'Hello,\n'\
           '\n'\
-          'The MovScan has been digitalized a new cine film: '+sys.argv[3]+'\n'\
+          'The MovScan has been digitalized a new cine film: '+sys.argv[2]+'\n'\
           'The film has been uploaded to YouTube, but it is most probable still in processing by YouTube.\n'\
-          'Link to the film: '+sys.argv[4]+'\n'\
+          'Link to the film: '+sys.argv[3]+'\n'\
           'Enjoy! :-)\n'\
           '\n'\
           'Butyi\n'\
