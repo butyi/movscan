@@ -1,0 +1,22 @@
+http://code.google.com/p/youtube-upload/wiki/Readme
+
+************* Install Gdata
+download from here: 
+http://code.google.com/p/gdata-python-client/downloads/list
+
+tar zxvf gdata-2.0.18.tar.gz
+cd gdata-2.0.18
+sudo python setup.py install
+
+************* Install youtube-uploader
+wget http://youtube-upload.googlecode.com/files/youtube-upload-VERSION.tgz
+tar xvzf youtube-upload-VERSION.tgz
+cd youtube-upload-VERSION
+sudo python setup.py install
+
+************* Install nice progressbar
+download http://python-distribute.org/distribute_setup.py
+run it: python distribute_setup.py
+
+************* try it!
+youtube-upload --email=$GMAIL --password=$GPASS --unlisted --title="linux bash upload" --description="Some description" --category=People --keywords="linux, bash" ~/test.avi
