@@ -66,9 +66,10 @@ with picamera.PiCamera() as camera:
     camera.start_preview() 
 
     # Adjust camera for my environment 
-    camera.crop = 0.27,0.25,0.55,0.55 # Crop active CCD part
+    camera.crop = 0.25,0.23,0.6,0.6 # Crop active CCD part
     camera.vflip = True # Mirroring is needed due to optic
-    camera.preview_fullscreen = True # To see same what will be saved
+    camera.preview_fullscreen = False # To be able to resize manually to see command line behind
+    camera.preview_window = 600, 10, 640, 480 # It depends on your monitor resolution!
     camera.awb_mode = 'off' # Normal bulb, manual white balance to prevent insable white-balance
     camera.video_stabilization = True # To stabilize mechanical moving os slides
     if "-m" in arguments: # If -m (monochrome) parameter is in the arguments
