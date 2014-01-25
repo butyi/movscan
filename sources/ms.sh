@@ -18,12 +18,9 @@ line() {
 . ~/.my-accounts
 
 # Variables
-OnLine=0
 FOLDERNAME=mozgofilm-$1
 FILENAME=$FOLDERNAME.avi
 NASPATH=~/nas/SAJAT/HOME_VIDEO/8mm
-NASSAVE=0
-YOUTUBE=0
 
 # check whether user had supplied -h or --help . If yes display usage
 if [[ ( $# == "--help") ||  $# == "-h" ]]
@@ -147,18 +144,24 @@ if [ $OnLine ]; then
   fi
 fi
 
+line
+echo -e "----- Delete video\n"
 # delete video if it is stored on NAS
 if [ $NASSAVE ]; then
-  line
-  echo -e "----- Delete video\n"
   sudo rm ~/$FILENAME
+fi
+if ! [ $NASSAVE ]; then
+  echo -e "  ~/$FILENAME is not deleted, because NAS save was not successfull.\n"
 fi
 
 # Send report mail if it was succesfully uploaded to YouTube
+line
+echo -e "----- Send report e-mail\n"
 if [ $YOUTUBE ]; then
-  line
-  echo -e "----- Send report e-mail\n"
   python /home/pi/movscan/sources/py/sendmail.py $GPASS $FOLDERNAME $(<~/youtube-link)
+fi
+if ! [ $YOUTUBE ]; then
+  echo -e "  Email is not sent, because YouTube upload was not successfull.\n"
 fi
 
 echo -e "Hurray, Finished!\n"
