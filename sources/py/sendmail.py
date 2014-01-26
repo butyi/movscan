@@ -27,7 +27,7 @@ recipient = 'butyi.hu@gmail.com; movscan@butyi.hu'
 subject = 'MovScan report'
 message = 'Hello,\n'\
           '\n'\
-          'The MovScan has been digitalized a new cine film: '+sys.argv[2]+'\n'\
+          'The MovScan has digitalized a new cine film: '+sys.argv[2]+'\n'\
           'The film has been uploaded to YouTube, but it is most probable still in processing by YouTube.\n'\
           'Link to the film: '+sys.argv[3]+'\n'\
           'Enjoy! :-)\n'\

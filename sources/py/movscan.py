@@ -60,7 +60,7 @@ with picamera.PiCamera() as camera:
     # (following setting needs active camera)
     width = 800 # Max resolution: 2592 x 1944
     camera.resolution = width,(width*3/4) # Image size (digit zoom, not resize!)
-    camera.framerate = 15 # Limit camera speed to have more CPU runtime
+    camera.framerate = 20 # Limit camera speed to have more CPU runtime
 
     # Start camera
     camera.start_preview() 
