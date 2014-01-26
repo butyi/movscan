@@ -13,17 +13,18 @@ import thread # For safe and fast file save
 import RPi.GPIO as GPIO # Import GPIO library
 
 # Statistic variables
-thread_num = 0
+thread_create_num = 0
+thread_solved_num = 0
 max_thread_num = 0
 
 # Define a function for the file save thread
 def save_image( stream, filename):    
-    global thread_num
+    global thread_solved_num
     stream.seek(0) # Rewing in stream
     fo = open(filename, "wb") # Open file
     fo.write(stream.read()) # Write the data
     fo.close() # Close opened file
-    thread_num = thread_num - 1 # Decrease thread number
+    thread_solved_num = thread_solved_num + 1 # Increase thread number
 
 # Check parameter
 if len(sys.argv)<1:
@@ -44,7 +45,6 @@ if "-h" in arguments: # If -h (help) parameter is in the arguments, than helpÅ
     exit
 
 # Statistic variables
-thread_num = 0
 max_thread_num = 0
 max_captime = 0
 elapsed_time = 0
@@ -56,6 +56,10 @@ runtime_2 = 1
 load = 0
 captime_int = 0
 fps = 0
+wd_edge_rising = 1
+wd_edge_falling = 1
+wd_duty = 50
+infotime = time.time()
 
 # Create object
 with picamera.PiCamera() as camera:
@@ -141,9 +145,9 @@ with picamera.PiCamera() as camera:
 
             # Save image in a different thread to not lose any image due to sporadicaly slow SD card access
             try:
-                thread_num = thread_num + 1 # Increase thread number
-                if (max_thread_num < thread_num): # Save max thread number
-                    max_thread_num = thread_num
+                thread_create_num = thread_create_num + 1 # Increase thread number
+                if (max_thread_num < (thread_create_num-thread_solved_num)): # Save max thread number
+                    max_thread_num = (thread_create_num-thread_solved_num)
                 thread.start_new_thread( save_image, (stream,filename) )
             except:
                 print "Error: unable to start thread"
@@ -153,20 +157,6 @@ with picamera.PiCamera() as camera:
             if max_captime < captime:
                 max_captime = captime
             captime_int = ((captime_int * 9)+captime)/10
-
-            # Inform me about operating
-            str=filename
-            str+=" tn=%d" % thread_num
-            str+=" mtn=%d" % max_thread_num
-            str+=" ct=%dms" % (captime_int*1000)
-            str+=" mct=%dms" % (max_captime*1000)
-            str+=" wd=%ds" % int(elapsed_time)
-            str+=" mwd=%ds" % int(max_elapsed_time)
-            str+=" fps=%d" % fps
-            str+=" load=%d%%" % load
-            str+='            \r'
-            sys.stdout.write(str)
-            sys.stdout.flush()
 
             # Increase image number
             n = n + 1
@@ -185,8 +175,15 @@ with picamera.PiCamera() as camera:
         # When we don't detect pulse for 10...15s, 
         # it is stopped, we can leave the loop by Loop = False.
         pin7state = GPIO.input(7) # Read actual pin state
-        if (pin7state <> pin7prevst): # Any edge happened, reel is turning
+        if ((pin7state == GPIO.HIGH) and (pin7prevst == GPIO.LOW)): # Rising edge happened, reel is turning
             last_wd_edge = time.time(); # Save the time of edge
+            wd_edge_rising = time.time(); # Save the time of edge
+        if ((pin7state == GPIO.LOW) and (pin7prevst == GPIO.HIGH)): # Falling edge happened, reel is turning
+            last_wd_edge = time.time(); # Save the time of edge
+            wd_period = time.time() - wd_edge_falling # This falling edge - prev falling edge
+            wd_edge_falling = time.time(); # Save the time of edge
+            wd_high = wd_edge_falling - wd_edge_rising # This falling edge - previous rising edge
+            wd_duty = wd_high * 100 / wd_period
 
         # Save watchdog pin state for edge detection
         pin7prevst = pin7state
@@ -199,6 +196,25 @@ with picamera.PiCamera() as camera:
             break # Leave the loop, exit from script
         if (n < 10): # reinit wd timer in the begining of movie
            last_wd_edge = time.time() + 10 # Now + 10sec
+
+        # Print info twice a sec
+        if (infotime < time.time()):
+            infotime = time.time() + 0.5
+
+            str=filename
+            str+=" tn=%2d" % (thread_create_num-thread_solved_num)
+            str+=" mtn=%2d" % max_thread_num
+            str+=" ct=%3dms" % (captime_int*1000)
+            str+=" mct=%3dms" % (max_captime*1000)
+            str+=" wd=%1ds" % int(10-elapsed_time)
+            str+=" mwd=%1ds" % int(10-max_elapsed_time)
+            str+=" wdd=%2d%%" % int(wd_duty)
+            str+=" fps=%2d" % fps
+            str+=" load=%2d%%" % load
+            str+='            \r'
+            sys.stdout.write(str)
+            sys.stdout.flush()
+
 
     # Final actions before quit from scrip
     camera.stop_preview() # Switch off the camera
