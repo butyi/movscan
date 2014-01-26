@@ -140,7 +140,16 @@ if [ $OnLine ]; then
   fi
   if [ ! -f ~/youtube-link ] # if there is no link
   then
-    youtube-upload --email=$GMAIL --password=$GPASS --unlisted --title="$FOLDERNAME" --description="$FOLDERNAME" --category=People --keywords="8mm, film, movie, cine-projector, raspberry pi, raspicam, scan, digitalize" ~/$FILENAME >~/youtube-link
+    # Find description
+    if [ -f $NASPATH/$FOLDERNAME/$FOLDERNAME.txt ] # if description is alredy available
+    then
+      DESCRIPTION=$(< $NASPATH/$FOLDERNAME/$FOLDERNAME.txt)
+      echo -e "  Description available."
+    else
+      DESCRIPTION=$FOLDERNAME
+      echo -e "  Description missing."
+    fi
+    youtube-upload --email=$GMAIL --password=$GPASS --unlisted --title="$FOLDERNAME" --description="$DESCRIPTION" --category=People --keywords="8mm, film, movie, cine-projector, raspberry pi, raspicam, scan, digitalize" ~/$FILENAME >~/youtube-link
     if [ $? -eq 0 ]; then
       YOUTUBE=1 # upload was successfull
     fi
@@ -161,7 +170,7 @@ fi
 line
 echo -e "----- Send report e-mail\n"
 if [ $YOUTUBE ]; then
-  python /home/pi/movscan/sources/py/sendmail.py $GPASS $FOLDERNAME $(<~/youtube-link)
+  python /home/pi/movscan/sources/py/sendmail.py $GPASS $FOLDERNAME $(<~/youtube-link) "$DESCRIPTION"
 fi
 if ! [ $YOUTUBE ]; then
   echo -e "  Email is not sent, because YouTube upload was not successfull.\n"

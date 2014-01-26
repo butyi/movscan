@@ -30,6 +30,9 @@ message = 'Hello,\n'\
           'The MovScan has digitalized a new cine film: '+sys.argv[2]+'\n'\
           'The film has been uploaded to YouTube, but it is most probable still in processing by YouTube.\n'\
           'Link to the film: '+sys.argv[3]+'\n'\
+          '\n'\
+          'Content:\n'+sys.argv[4]+'\n'\
+          '\n'\
           'Enjoy! :-)\n'\
           '\n'\
           'Butyi\n'\
