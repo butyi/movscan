@@ -12,18 +12,13 @@ import sys
 import thread # For safe and fast file save
 import RPi.GPIO as GPIO # Import GPIO library
 
-# Statistic variables
-thread_num = 0
-max_thread_num = 0
 
 # Define a function for the file save thread
-def save_image( stream, filename):    
-    global thread_num
+def save_image( stream, filename):
     stream.seek(0) # Rewing in stream
     fo = open(filename, "wb") # Open file
     fo.write(stream.read()) # Write the data
     fo.close() # Close opened file
-    thread_num = thread_num - 1 # Decrease thread number
 
 # Check parameter
 if len(sys.argv)<1:
@@ -41,19 +36,8 @@ if "-h" in arguments: # If -h (help) parameter is in the arguments, than helpÅ
     print "-h: help"
     exit
 
-# Statistic variables
-thread_num = 0
-max_thread_num = 0
-max_captime = 0
-elapsed_time = 0
-max_elapsed_time = 0
-runtime_shoot = 1
-runtime_0 = 1
-runtime_1 = 1
-runtime_2 = 1
-load = 0
-captime_int = 0
-fps = 0
+# Reserve buffer for images in memory
+stream = io.BytesIO()
 
 # Create object
 with picamera.PiCamera() as camera:
@@ -76,7 +60,7 @@ with picamera.PiCamera() as camera:
     # (following setting needs active camera)
     width = 800 # Max resolution: 2592 x 1944
     camera.resolution = width,(width*3/4) # Image size (digit zoom, not resize!)
-    camera.framerate = 30 # Maximum
+    camera.framerate = 15 # Limit camera speed to have more CPU runtime
 
     # Start camera
     camera.start_preview() 
@@ -111,9 +95,6 @@ with picamera.PiCamera() as camera:
         # Wait for shot imput falling edge
         pin11state = GPIO.input(11)
         if (pin11state == GPIO.LOW and pin11prevst == GPIO.HIGH): # Falling edge happened
-            # Measure runtime
-            runtime_0 = runtime_1 # save previous runtime_1 for period calculation
-            runtime_1 = time.time() # save start of shooting
 
             # Create file name
             filename = 'image%05d.jpg' % n # Numberred file name for later video creation
@@ -136,41 +117,21 @@ with picamera.PiCamera() as camera:
 
             # Save image in a different thread to not lose any image due to sporadicaly slow SD card access
             try:
-                thread_num = thread_num + 1 # Increase thread number
-                if (max_thread_num < thread_num): # Save max thread number
-                    max_thread_num = thread_num
                 thread.start_new_thread( save_image, (stream,filename) )
             except:
                 print "Error: unable to start thread"
 
             # Measure image time and warn user if it was longer than 200ms
             captime = time.time() - captime
-            if max_captime < captime:
-                max_captime = captime
-            captime_int = ((captime_int * 9)+captime)/10
+            warning = " "
+            if 0.2 < captime:
+                warning = "  " + str(captime) + " s !!!"
 
             # Inform me about operating
-            str=filename
-            str+=" tn=%d" % thread_num
-            str+=" mtn=%d" % max_thread_num
-            str+=" ct=%dms" % (captime_int*1000)
-            str+=" mct=%dms" % (max_captime*1000)
-            str+=" wd=%ds" % int(elapsed_time)
-            str+=" mwd=%ds" % int(max_elapsed_time)
-            str+=" fps=%d" % fps
-            str+=" load=%d%%" % load
-            str+='            \r'
-            sys.stdout.write(str)
-            sys.stdout.flush()
+            print filename + warning 
 
             # Increase image number
             n = n + 1
-
-            # Measure runtime
-            runtime_2 = time.time()
-            runtime_shoot = runtime_2 - runtime_1
-            fps = int(1/(runtime_1 - runtime_0))
-            load = ((load*9)+int(runtime_shoot*100/(runtime_1 - runtime_0)))/10
 
         # Save shoot pin state for edge detection
         pin11prevst = pin11state
@@ -188,9 +149,7 @@ with picamera.PiCamera() as camera:
 
         # Check watchdog time
         elapsed_time = time.time() - last_wd_edge # Calculate elapsed time for last watchdog edge
-        if max_elapsed_time < elapsed_time:
-            max_elapsed_time = elapsed_time
-        if (10 <= n and 10 <= elapsed_time): # if 10 images were saved and elapsed time is more than 10s
+        if (10 <= n and 30 <= elapsed_time): # if 10 images were saved and elapsed time is more than 30s
             break # Leave the loop, exit from script
         if (n < 10): # reinit wd timer in the begining of movie
            last_wd_edge = time.time() + 10 # Now + 10sec
@@ -198,5 +157,4 @@ with picamera.PiCamera() as camera:
     # Final actions before quit from scrip
     camera.stop_preview() # Switch off the camera
     camera.close()
-    print "End of shooting" # Leave '\r' printing
 
