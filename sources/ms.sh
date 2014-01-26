@@ -65,7 +65,7 @@ if [ -f ~/$FILENAME ] # if there is video file with same name
 then
   rm ~/$FILENAME # delete it
 fi
-avconv -g 0 -r 15 -f image2 -i image%05d.jpg -crf 1 -qscale 1 -preset slower ~/$FILENAME
+avconv -r 15 -f image2 -i image%05d.jpg -crf 15 -b 10M -preset slower ~/$FILENAME
 if [ $? -ne 0 ]; then
   echo -e "ERROR! Cannot make video."
   exit
