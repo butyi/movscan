@@ -48,14 +48,8 @@ fi
 
 # Shoot slides of movie. The sript exits at the end of movie automaticly
 line
-if [[ $2 == "-n" ]]
-then
-        echo -e "----- Shooting monocrome slides\n"
-        sudo python ~/movscan/sources/py/movscan.py -n -p
-else
-        echo -e "----- Shooting color slides\n"
-        sudo python ~/movscan/sources/py/movscan.py -s -p
-fi
+echo -e "----- Shooting slides ($2 $3)\n"
+sudo python ~/movscan/sources/py/movscan.py -p $2 $3
 if [ $? -ne 0 ]; then
   echo -e "ERROR! Cannot take images."
   exit
@@ -77,7 +71,10 @@ fi
 # delete images
 line
 echo -e "----- Delete images\n"
-sudo rm *
+cd ~/
+sudo rm -r temp # Delete all images in folder
+mkdir temp
+cd ~/temp
 if [ $? -ne 0 ]; then
   echo -e "  WARNING! Cannot delete images."
 fi
@@ -116,7 +113,7 @@ if [ $OnLine ]; then
       fi
       if [ ! -f $NASPATH/$FOLDERNAME/$FILENAME ] # if same file is not in the folder
       then
-        cp ~/$FILENAME $NASPATH/$FOLDERNAME # Copy the new file to NAS
+        cpb ~/$FILENAME $NASPATH/$FOLDERNAME/$FILENAME # Copy the new file to NAS with progress bar
         if [ $? -eq 0 ]; then
           NASSAVE=1 # NAS save was successfull
         fi
