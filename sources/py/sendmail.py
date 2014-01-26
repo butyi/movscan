@@ -23,7 +23,7 @@ SMTP_PORT = 587
  
 sender = 'butyi.hu@gmail.com'
 password = sys.argv[1]
-recipient = 'butyi.hu@gmail.com; movscan@butyi.hu'
+recipient = 'butyi.hu@gmail.com'
 subject = 'MovScan report'
 message = 'Hello,\n'\
           '\n'\

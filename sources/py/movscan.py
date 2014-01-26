@@ -35,7 +35,9 @@ arguments = str(sys.argv)
 
 # Print help
 if "-h" in arguments: # If -h (help) parameter is in the arguments, than help≈
-    print "Usage: sudo python movscan.py [-m|-p|-h]"
+    print "Usage: sudo python movscan.py [options]"
+    print "-n: normal film crop"
+    print "-s: super film crop"
     print "-m: monochrome"
     print "-p: show preview"
     print "-h: help"
@@ -82,7 +84,10 @@ with picamera.PiCamera() as camera:
     camera.start_preview() 
 
     # Adjust camera for my environment 
-    camera.crop = 0.25,0.23,0.6,0.6 # Crop active CCD part
+    if "-s" in arguments: # For super film
+        camera.crop = 0.25,0.23,0.6,0.6 # Crop active CCD part
+    if "-n" in arguments: # For normal film
+        camera.crop = 0.32,0.23,0.50,0.50 # Crop active CCD part
     camera.vflip = True # Mirroring is needed due to optic
     camera.preview_fullscreen = False # To be able to resize manually to see command line behind
     camera.preview_window = 600, 10, 640, 480 # It depends on your monitor resolution!

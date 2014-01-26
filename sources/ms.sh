@@ -40,18 +40,21 @@ then
 fi
 if [ "$(ls -A ~/temp)" ] # If temp folder is not empty
 then
-  sudo rm * # Delete all images in folder
+  cd ~/
+  sudo rm -r temp # Delete all images in folder
+  mkdir temp
+  cd ~/temp
 fi
 
 # Shoot slides of movie. The sript exits at the end of movie automaticly
 line
-if [[ $2 == "-m" ]]
+if [[ $2 == "-n" ]]
 then
         echo -e "----- Shooting monocrome slides\n"
-        sudo python ~/movscan/sources/py/movscan.py -m -p
+        sudo python ~/movscan/sources/py/movscan.py -n -p
 else
         echo -e "----- Shooting color slides\n"
-        sudo python ~/movscan/sources/py/movscan.py -p
+        sudo python ~/movscan/sources/py/movscan.py -s -p
 fi
 if [ $? -ne 0 ]; then
   echo -e "ERROR! Cannot take images."
@@ -65,7 +68,7 @@ if [ -f ~/$FILENAME ] # if there is video file with same name
 then
   rm ~/$FILENAME # delete it
 fi
-avconv -g 0 -r 15 -f image2 -i image%05d.jpg -crf 15 -b 10M -preset slower ~/$FILENAME
+avconv -g 0 -r 15 -f image2 -i image%05d.jpg -qscale 1 -b 10M -preset slower ~/$FILENAME
 if [ $? -ne 0 ]; then
   echo -e "ERROR! Cannot make video."
   exit
