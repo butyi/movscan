@@ -87,7 +87,7 @@ with picamera.PiCamera() as camera:
     if "-s" in arguments: # For super film
         camera.crop = 0.25,0.23,0.6,0.6 # Crop active CCD part
     if "-n" in arguments: # For normal film
-        camera.crop = 0.32,0.23,0.50,0.50 # Crop active CCD part
+        camera.crop = 0.35,0.23,0.50,0.50 # Crop active CCD part
     camera.vflip = True # Mirroring is needed due to optic
     camera.preview_fullscreen = False # To be able to resize manually to see command line behind
     camera.preview_window = 600, 10, 640, 480 # It depends on your monitor resolution!
@@ -203,5 +203,7 @@ with picamera.PiCamera() as camera:
     # Final actions before quit from scrip
     camera.stop_preview() # Switch off the camera
     camera.close()
+    sys.stdout.write('\n')
+    sys.stdout.flush()
     print "End of shooting" # Leave '\r' printing
 
