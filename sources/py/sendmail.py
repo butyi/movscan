@@ -1,11 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright: BENCSIK János <copyright@butyi.hu>
+# Copyright: BENCSIK Janos <copyright@butyi.hu>
 # License : WTFPL v2 <http://www.wtfpl.net/txt/copying/>
-# parameter 1: gmail address as user name for gmail account
-# parameter 2: password from the gmail account
-# parameter 3: name of video file (should be talkative)
-# parameter 4: youtube link to video
+
+# parameter 1: password from the gmail account
+# parameter 2: name of video file (should be talkative)
+# parameter 3: youtube link to video
 
 import os, re
 import sys
