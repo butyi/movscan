@@ -167,10 +167,10 @@ fi
 line
 echo -e "----- Send report e-mail\n"
 if [ $YOUTUBE ]; then
-  python /home/pi/movscan/sources/py/sendmail.py $GPASS $FOLDERNAME $(<~/youtube-link) "$DESCRIPTION"
+  python /home/pi/movscan/sources/py/sendmail.py $GPASS "$GTO" $FOLDERNAME $(<~/youtube-link) "$DESCRIPTION"
 fi
 if ! [ $YOUTUBE ]; then
-  echo -e "  Email is not sent, because YouTube upload was not successfull.\n"
+  echo -e "  Email has not sent, because YouTube upload was not successfull.\n"
 fi
 
 echo -e "Hurray, Finished!\n"

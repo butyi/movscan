@@ -45,6 +45,7 @@ if "-h" in arguments: # If -h (help) parameter is in the arguments, than help≈
     exit
 
 # Statistic variables
+filename = "image00000.jpg"
 max_thread_num = 0
 max_captime = 0
 elapsed_time = 0
@@ -89,7 +90,7 @@ with picamera.PiCamera() as camera:
 
     # Adjust camera for my environment 
     if "-s" in arguments: # For super film
-        camera.crop = 0.25,0.23,0.6,0.6 # Crop active CCD part
+        camera.crop = 0.27,0.19,0.6,0.6 # Crop active CCD part
     if "-n" in arguments: # For normal film
         camera.crop = 0.35,0.23,0.50,0.50 # Crop active CCD part
     camera.vflip = True # Mirroring is needed due to optic
