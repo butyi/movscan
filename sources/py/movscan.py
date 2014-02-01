@@ -109,7 +109,7 @@ with picamera.PiCamera() as camera:
     #  watchdog inpunt must be monitorred)
     pin11state = GPIO.HIGH # Due to input is active low
     pin11prevst = GPIO.HIGH
-    last_wd_edge = time.time() + 10 # Now + 10sec
+    last_wd_edge = time.time()
 
     # Edge detect variables for watchdog input
     pin7state = GPIO.HIGH # Due to input is active low
@@ -196,7 +196,7 @@ with picamera.PiCamera() as camera:
         if (10 <= n and 10 <= elapsed_time): # if 10 images were saved and elapsed time is more than 10s
             break # Leave the loop, exit from script
         if (n < 10): # reinit wd timer in the begining of movie
-           last_wd_edge = time.time() + 10 # Now + 10sec
+           last_wd_edge = time.time()
 
         # Print info twice a sec
         if (infotime < time.time()):

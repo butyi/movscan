@@ -4,16 +4,18 @@
 #Functions
 display_usage() {
 	echo -e "Movie digitalizer scipt\n"
-	echo -e "Usage:\n$0 n [-m]\n"
-        echo -e "   n : number of film in format %02d\n"
+	echo -e "Usage:\n$0 x [-s|n] [-m|c] [-p]\n"
+        echo -e "   x : number of film in format %02d\n"
         echo -e "  -m : Monochrome images\n"
+        echo -e "  -c : Color images\n"
+        echo -e "  -s : Super film\n"
+        echo -e "  -n : Normal film\n"
+        echo -e "  -p : Presentation mode\n"
 }
 
 line() {
         echo -e "------------------------------------\n"
 }
-
-
 # Read my NAS account data (NAS_USER, NAS_PASS)
 . ~/.my-accounts
 
@@ -93,7 +95,7 @@ if [ $OnLine ]; then
   if ! mountpoint -q /home/pi/nas
   then
     echo -e "  - Mount NAS\n"
-    sudo mount -t cifs //192.168.0.134/volume_1 /home/pi/nas -o username=$NAS_USER,password=$NAS_PASS
+    sudo mount -t cifs $NASDRIVE /home/pi/nas -o username=$NAS_USER,password=$NAS_PASS
     # return value must not be tested here, because must continue even if mount has failed
   fi
 
@@ -165,7 +167,7 @@ fi
 
 # Send report mail if it was succesfully uploaded to YouTube
 line
-echo -e "----- Send report e-mail\n"
+echo -e "----- Send report e-mail ($GTO)\n"
 if [ $YOUTUBE ]; then
   python /home/pi/movscan/sources/py/sendmail.py $GPASS "$GTO" $FOLDERNAME $(<~/youtube-link) "$DESCRIPTION"
 fi
@@ -173,5 +175,7 @@ if ! [ $YOUTUBE ]; then
   echo -e "  Email has not sent, because YouTube upload was not successfull.\n"
 fi
 
-echo -e "Hurray, Finished!\n"
+if [ $? -eq 0 ]; then
+  echo -e "Hurray, Finished!\n"
+fi
 
