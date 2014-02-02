@@ -124,7 +124,7 @@ First test scanning result:
 http://youtu.be/uJuZ71KQGfk
 
 How to done it video:
-http://youtu.be/PBL8H71WICk
+http://youtu.be/E6BKvXn1ejU
 
 Thank you for attention!
 ========================
