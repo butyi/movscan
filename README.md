@@ -38,7 +38,7 @@ Scan should be as fast as possible
 - With “use_video_port = True﻿” option, it can take image to file every 140ms (7 fps)
 - Take image to RAM just 60ms (16 fps) but save to file in parallel threads also needs runtime
 
-Finally safe speed is 8 fps -> half speed
+Finally safe speed is 8 fps. It is half speed.
 
 CCD, optic and LED
 ==================
