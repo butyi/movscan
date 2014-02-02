@@ -12,6 +12,9 @@ import sys
 import thread # For safe and fast file save
 import RPi.GPIO as GPIO # Import GPIO library
 
+# Config parameters
+wd_timeout_in_s = 15
+
 # Statistic variables
 thread_create_num = 0
 thread_solved_num = 0
@@ -193,7 +196,7 @@ with picamera.PiCamera() as camera:
         elapsed_time = time.time() - last_wd_edge # Calculate elapsed time for last watchdog edge
         if max_elapsed_time < elapsed_time:
             max_elapsed_time = elapsed_time
-        if (10 <= n and 10 <= elapsed_time): # if 10 images were saved and elapsed time is more than 10s
+        if (10 <= n and wd_timeout_in_s <= elapsed_time): # if 10 images were saved and elapsed time is more than wd_timeout_in_s
             break # Leave the loop, exit from script
         if (n < 10): # reinit wd timer in the begining of movie
            last_wd_edge = time.time()
@@ -207,8 +210,8 @@ with picamera.PiCamera() as camera:
             str+=" mtn=%2d" % max_thread_num
             str+=" ct=%3dms" % (captime_int*1000)
             str+=" mct=%3dms" % (max_captime*1000)
-            str+=" wd=%1ds" % int(10-elapsed_time)
-            str+=" mwd=%1ds" % int(10-max_elapsed_time)
+            str+=" wd=%1ds" % int(wd_timeout_in_s-elapsed_time)
+            str+=" mwd=%1ds" % int(wd_timeout_in_s-max_elapsed_time)
             str+=" wdd=%2d%%" % int(wd_duty)
             str+=" fps=%2d" % fps
             str+=" load=%2d%%" % load
