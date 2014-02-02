@@ -10,7 +10,6 @@ display_usage() {
         echo -e "  -c : Color images\n"
         echo -e "  -s : Super film\n"
         echo -e "  -n : Normal film\n"
-        echo -e "  -p : Presentation mode\n"
 }
 
 line() {
