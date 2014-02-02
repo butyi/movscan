@@ -112,7 +112,7 @@ E-mail notify
 Finally a python script sends an Email report with Youtube link to video.
 
 "Hello,
-The MovScan has been digitalized a new cine film: mozgofilm-06
+The MovScan has digitalized a new cine film: mozgofilm-06
 The film has been uploaded to YouTube, but it is most probable still in processing by YouTube.
 Link to the film: http://www.youtube.com/watch?v=I0-vjlOqfZg
 Enjoy! :-)
