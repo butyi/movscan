@@ -4,7 +4,7 @@ MovScan
 
 Motivation
 ==========
-I have a large suitcase of 8mm movies. To see one, I must prepare projector and environment which is too complicated.
+I have a large suitcase of 8mm movies. To see one, I must prepare projector and environment which is too complicated. Would be good to digitalize them as automated way as possible.
 
 ToDo
 ====
@@ -16,7 +16,7 @@ This was created by a 30fps video camera.
 
 Cine-projector
 ==============
-I used the Russian Lomo Russ projector what I have
+I used a Russian projector what I have: Lomo Russ
 
 Camera
 ======
@@ -26,6 +26,8 @@ Target is to have a camera which
 - Cheap
 - Fast
 - Flexible 
+
+Best: Raspberry Pi with RaspiCam
 
 Speed
 =====
@@ -38,29 +40,30 @@ Scan should be as fast as possible
 
 Finally safe speed is 8 fps -> half speed
 
+CCD, optic and LED
+==================
+I have created a paper console for CCD. The optic is the original one. 10W power LED is used instead of light bulb. 
+
 Shoot sensor
 ============
-Opto gate was built in, which gives one pulse for every slide right after the change.
+Opto gate was built in into the machine, which gives one pulse for every movie slide. Originally there were three shadow plates. One hides the slide change. The other two just multiplies the shadow frequency. Now one plate is used to give shot pulse, but all three plates were removed to not make any shadow. This because any shadow disturbed the camera automatic light control algorithm. 
 
 Watchdog sensor
 ===============
-It gives pulse from source reel. It always makes pulse when the reel is moving. When we don't detect pulse for 10...15s, most likely it is stopped, we can exit from shoot-loop. 
+It gives pulse from source reel. It always makes pulse when the reel is moving. When we don't detect pulse for 10...15s, most likely it is stopped due to end of the film, we can exit from shoot-loop. 
 
 RaspiStill
 ==========
-I have tried RaspiStill signal control first. With -s option it waits for SIGUSR1 to shoot.
-I have written a C module to send SIGUSR1 signal when edge occurred on GPIO input.
-Of course this was so 
-slow (1fps), but worked.
+I have tried RaspiStill signal control first. With -s option it waits for SIGUSR1 to shoot. I have written a C module to send SIGUSR1 signal when edge occurred on GPIO input. Of course this was so slow (1fps), but worked.
+
 (movscan.c)
 
 White balance
 =============
-In all white balance option the automated trim remains active, which results unstable colours also in case of black and white films.
-To prevent this negative effect, white balance must be switched off.
+In all white balance options the automated trim algorithm remains active, which results unstable flying colours also in case of black and white films.
+To prevent this negative effect, white balance must be switched off in RaspiCam.
 But this results yellow images with original light bulb.
-Using cold white LED solved
-the white balance issues.
+Using cold white LED solved the white balance issues. 
 
 Main bash script
 ================
@@ -74,8 +77,10 @@ The procedure is managed by a bash script
 
 Capture images
 ==============
-PiCamera python lib is used. 
-Crop realises digital zoom → fast shot with high resolution
+PiCamera python lib is used:
+http://picamera.readthedocs.org/en/release-0.8/index.html
+
+While I use the original optic, the real picture in only a small central part of CCD. To not lose resolution, full resolution picture should be saved, which results slow save. Faster save would need small resolution picture. Crop function realizes digital zoom, which is exactly the best: fast save with high resolution.
 
 File save
 =========
@@ -86,7 +91,7 @@ With this solution no images are lost.
 Create Video
 ============
 Create 15fps video from images:
-avconv -r 15 -f image2 -i image%05d.jpg -crf 15 -b 10M -preset slower ~/video.avi
+avconv -g 0 -r 15 -f image2 -i image%05d.jpg -qscale 1 -b 10M -preset slower ~/video.avi
 It is not too fast on RPI (2...3 fps)
 
 Copy video file to NAS
