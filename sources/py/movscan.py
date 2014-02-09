@@ -205,8 +205,8 @@ with picamera.PiCamera() as camera:
             str+=" mtn=%2d" % max_thread_num
             str+=" ct=%3dms" % (captime_int*1000)
             str+=" mct=%3dms" % (max_captime*1000)
-            str+=" wd=%1ds" % int(wd_timeout_in_s-elapsed_time)
-            str+=" mwd=%1ds" % int(wd_timeout_in_s-max_elapsed_time)
+            str+=" wd=%2ds" % int(wd_timeout_in_s-elapsed_time+1)
+            str+=" mwd=%2ds" % int(wd_timeout_in_s-max_elapsed_time+1)
             str+=" wdd=%2d%%" % int(wd_duty)
             str+=" fps=%2d" % fps
             str+=" load=%2d%%" % load

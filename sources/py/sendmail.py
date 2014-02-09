@@ -64,7 +64,5 @@ def main():
     
     session.quit()
 
-    sys.exit(errno.EACCES)
- 
 if __name__ == '__main__':
     main()

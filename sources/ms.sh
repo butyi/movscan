@@ -23,6 +23,12 @@ FOLDERNAME=mozgofilm-$1
 FILENAME=$FOLDERNAME.avi
 TXTFILENAME=$FOLDERNAME.txt
 NASPATH=~/nas/SAJAT/HOME_VIDEO/8mm
+YELLOW_TEXT='\e[1;33m'
+RED_TEXT='\e[1;31m'
+GREEN_TEXT='\e[1;32m'
+BLUE_TEXT='\e[1;34m'
+ENDCOLOR='\e[0m'
+
 
 # check whether user had supplied -h or --help . If yes display usage
 if [[ ( $# == "--help") ||  $# == "-h" ]]
@@ -41,7 +47,7 @@ done
 
 # Try to create target folder on NAS and an empty text file for description
 line
-echo "----- Create target folder on NAS"
+echo "----- Prepare target folder on NAS"
 if ! [ $OnLine ]; then echo "There is not LAN connection. NAS task is skipped."; fi
 if [ $OnLine ]; then
   if ! mountpoint -q /home/pi/nas
@@ -50,6 +56,8 @@ if [ $OnLine ]; then
     echo "sudo mount -t cifs $NASDRIVE /home/pi/nas -o username=NAS_USER,password=NAS_PASS"
     sudo mount -t cifs $NASDRIVE /home/pi/nas -o username=$NAS_USER,password=$NAS_PASS
     # return value must not be tested here, because must continue even if mount has failed
+  else
+    echo "NAS is already mounted."
   fi
 
   if mountpoint -q /home/pi/nas # If mount is now visible
@@ -59,6 +67,8 @@ if [ $OnLine ]; then
     then
       echo "Make dir $FOLDERNAME"
       mkdir $NASPATH/$FOLDERNAME # Create it
+    else
+      echo "Folder $FOLDERNAME already exists."
     fi
     if [ -d $NASPATH/$FOLDERNAME ] #if folder exists on NAS
     then
@@ -66,6 +76,12 @@ if [ $OnLine ]; then
       then
         echo "Create text file $NASPATH/$FOLDERNAME/$TXTFILENAME"
         touch $NASPATH/$FOLDERNAME/$TXTFILENAME
+      else
+        echo "File $NASPATH/$FOLDERNAME/$TXTFILENAME already exists."
+      fi
+      if [ ! -s $NASPATH/$FOLDERNAME/$TXTFILENAME ] # if txt file is empty
+      then
+        echo -e "${YELLOW_TEXT}WARNING! File $NASPATH/$FOLDERNAME/$TXTFILENAME is empty. Please fill it up during processing!${ENDCOLOR}"
       fi
     fi
   fi
@@ -78,16 +94,17 @@ echo "----- Jump to ~/temp folder"
 cd ~/temp
 if [ $? -ne 0 ] # cd command faults
 then
-  echo "ERROR! Cannot jump to ~/temp folder."
+  echo -e "${RED_TEXT}ERROR! Cannot jump to ~/temp folder.${ENDCOLOR}"
   exit
 fi
 if [ "$(ls -A ~/temp)" ] # If temp folder is not empty
 then
-  read -p "There are already images available in temp folder. Do you want to overwrite them? (y/n)?" choice
+  echo -e "${BLUE_TEXT}There are already images available in temp folder. Do you want to overwrite them? (y/n)?${ENDCOLOR}"
+  read choice
   case "$choice" in
     y|Y ) NEW_IMAGES=1;;
     n|N ) ;;
-    * ) echo "invalid";;
+    * ) echo -e "${RED_TEXT}Invalid answer!${ENDCOLOR}"; exit;;
   esac
   if [ $NEW_IMAGES ]; then
     cd ~/
@@ -107,17 +124,18 @@ if [ $NEW_IMAGES ]; then
   echo "sudo python ~/movscan/sources/py/movscan.py $2"
   sudo python ~/movscan/sources/py/movscan.py $2
   if [ $? -ne 0 ]; then
-    echo "ERROR! Cannot take images."
+    echo -e "${RED_TEXT}ERROR! Cannot take images.${ENDCOLOR}"
     exit
   fi
 fi
 
 # Ask user whether the film was color or grayscale
-read -p "Was the film color or grayscale? (c/g)?" choice
+echo -e "${BLUE_TEXT}Was the film color or grayscale? (c/g)?${ENDCOLOR}"
+read choice
 case "$choice" in
   c|C ) echo "color"; FILM_COLOR=1;;
   g|G ) echo "grayscale"; FILM_GRAYSCALE=1;;
-  * ) echo "invalid answer"; exit;;
+  * ) echo -e "${RED_TEXT}Invalid answer!${ENDCOLOR}"; exit;;
 esac
 
 
@@ -142,7 +160,7 @@ then
 fi
 
 if [ $? -ne 0 ]; then
-  echo "ERROR! Cannot make video."
+  echo -e "${RED_TEXT}ERROR! Cannot make video.${ENDCOLOR}"
   exit
 fi
 
@@ -154,7 +172,7 @@ sudo rm -r temp # Delete all images in folder
 mkdir temp
 cd ~/temp
 if [ $? -ne 0 ]; then
-  echo "WARNING! Cannot delete images."
+  echo -e "${YELLOW_TEXT}WARNING! Cannot delete images.${ENDCOLOR}"
 else
   echo "OK. Images are deleted."
 fi
@@ -210,7 +228,7 @@ if [ $OnLine ]; then
     echo "Delete Youtube link"
     rm ~/youtube-link # Delete it
     if [ $? -ne 0 ]; then
-      echo "WARNING! Cannot delete link."
+      echo -e "${YELLOW_TEXT}WARNING! Cannot delete link.${ENDCOLOR}"
     fi
   fi
   if [ ! -f ~/youtube-link ] # if there is no link
@@ -222,7 +240,7 @@ if [ $OnLine ]; then
       echo "Description available."
     else
       DESCRIPTION=$FOLDERNAME
-      echo "Description missing."
+      echo -e "${YELLOW_TEXT}Description missing.${ENDCOLOR}"
     fi
     youtube-upload --email=$GMAIL --password=$GPASS --unlisted --title="$FOLDERNAME" --description="$DESCRIPTION" --category=People --keywords="8mm, film, movie, cine-projector, raspberry pi, raspicam, scan, digitalize" ~/$FILENAME >~/youtube-link
     if [ $? -eq 0 ]; then
@@ -249,10 +267,10 @@ if [ $YOUTUBE ]; then
   if [ $? -eq 0 ]; then
     echo "Email has sent."
   else
-    echo "WARNING! Email has not sent."
+    echo -e "${RED_TEXT}ERROR! Email has not sent.${ENDCOLOR}"
   fi
 else
   echo "Email has not sent, because YouTube upload was not successfull."
 fi
 
-echo "Hurray, Finished!"
+echo -e "${GREEN_TEXT}Hurray, Finished!${ENDCOLOR}"
