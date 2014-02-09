@@ -1,9 +1,11 @@
 #!/bin/bash
 # Movie digitalizer scipt. ms => Movie Scan
+# Copyright: BENCSIK Janos <copyright@butyi.hu>
+# License : WTFPL v2 <http://www.wtfpl.net/txt/copying/>
 
 #Functions
 display_usage() {
-	echo "Movie digitalizer scipt"
+	echo "Movie film digitalizer scipt"
 	echo "Usage:\n$0 x [-s|n]"
         echo "   x : number of film in format %02d"
         echo "  -s : Super film"
@@ -19,6 +21,7 @@ line() {
 # Variables
 FOLDERNAME=mozgofilm-$1
 FILENAME=$FOLDERNAME.avi
+TXTFILENAME=$FOLDERNAME.txt
 NASPATH=~/nas/SAJAT/HOME_VIDEO/8mm
 
 # check whether user had supplied -h or --help . If yes display usage
@@ -27,6 +30,47 @@ then
 	display_usage
 	exit 0
 fi
+
+# Check internet connection (Thanks to Jesse: http://stackoverflow.com/users/2083761/jesse)
+line
+echo "Check internet connection."
+for interface in $(ls /sys/class/net/ | grep -v lo);
+do
+  if [[ $(cat /sys/class/net/$interface/carrier) = 1 ]]; then OnLine=1; fi
+done
+
+# Try to create target folder on NAS and an empty text file for description
+line
+echo "----- Create target folder on NAS"
+if ! [ $OnLine ]; then echo "There is not LAN connection. NAS task is skipped."; fi
+if [ $OnLine ]; then
+  if ! mountpoint -q /home/pi/nas
+  then
+    echo "Mount NAS"
+    echo "sudo mount -t cifs $NASDRIVE /home/pi/nas -o username=NAS_USER,password=NAS_PASS"
+    sudo mount -t cifs $NASDRIVE /home/pi/nas -o username=$NAS_USER,password=$NAS_PASS
+    # return value must not be tested here, because must continue even if mount has failed
+  fi
+
+  if mountpoint -q /home/pi/nas # If mount is now visible
+  then
+    # prepare NAS
+    if [ ! -d $NASPATH/$FOLDERNAME ] #if folder does not exist on NAS
+    then
+      echo "Make dir $FOLDERNAME"
+      mkdir $NASPATH/$FOLDERNAME # Create it
+    fi
+    if [ -d $NASPATH/$FOLDERNAME ] #if folder exists on NAS
+    then
+      if [ ! -f $NASPATH/$FOLDERNAME/$TXTFILENAME ] # if txt file is not yet in the folder
+      then
+        echo "Create text file $NASPATH/$FOLDERNAME/$TXTFILENAME"
+        touch $NASPATH/$FOLDERNAME/$TXTFILENAME
+      fi
+    fi
+  fi
+fi
+
 
 # jump to temp folder where images will be stored
 line
@@ -39,7 +83,7 @@ then
 fi
 if [ "$(ls -A ~/temp)" ] # If temp folder is not empty
 then
-  read -p "There are already images available. Do you want to overwrite them? (y/n)?" choice
+  read -p "There are already images available in temp folder. Do you want to overwrite them? (y/n)?" choice
   case "$choice" in
     y|Y ) NEW_IMAGES=1;;
     n|N ) ;;
@@ -52,14 +96,16 @@ then
     cd ~/temp
   fi
 else # If temp folder is empty
+  echo "The temp folder is empty."
   NEW_IMAGES=1
 fi
 
 # Shoot slides of movie. The sript exits at the end of movie automaticly
 if [ $NEW_IMAGES ]; then
   line
-  echo "----- Shooting slides ($2 $3)"
-  sudo python ~/movscan/sources/py/movscan.py -p $2
+  echo "----- Shooting slides"
+  echo "sudo python ~/movscan/sources/py/movscan.py $2"
+  sudo python ~/movscan/sources/py/movscan.py $2
   if [ $? -ne 0 ]; then
     echo "ERROR! Cannot take images."
     exit
@@ -85,11 +131,13 @@ fi
 
 if [ $FILM_COLOR ];
 then
+  echo "avconv -g 0 -r 15 -f image2 -i image%05d.jpg -qscale 1 -b 15M -preset slower ~/$FILENAME"
   avconv -g 0 -r 15 -f image2 -i image%05d.jpg -qscale 1 -b 15M -preset slower ~/$FILENAME
 fi
 
 if [ $FILM_GRAYSCALE ];
 then
+  echo "avconv -g 0 -r 15 -f image2 -i image%05d.jpg -flags gray -qscale 1 -b 15M -preset slower ~/$FILENAME"
   avconv -g 0 -r 15 -f image2 -i image%05d.jpg -flags gray -qscale 1 -b 15M -preset slower ~/$FILENAME
 fi
 
@@ -106,23 +154,20 @@ sudo rm -r temp # Delete all images in folder
 mkdir temp
 cd ~/temp
 if [ $? -ne 0 ]; then
-  echo "  WARNING! Cannot delete images."
+  echo "WARNING! Cannot delete images."
+else
+  echo "OK. Images are deleted."
 fi
-
-# Check internet connection (Thanks to Jesse: http://stackoverflow.com/users/2083761/jesse)
-for interface in $(ls /sys/class/net/ | grep -v lo);
-do
-  if [[ $(cat /sys/class/net/$interface/carrier) = 1 ]]; then OnLine=1; fi
-done
 
 # copy video to NAS if possible
 line
 echo "----- Copy video to NAS"
-if ! [ $OnLine ]; then echo "  There is not LAN connection. NAS save is skipped."; fi
+if ! [ $OnLine ]; then echo "There is not LAN connection. NAS save is skipped."; fi
 if [ $OnLine ]; then
   if ! mountpoint -q /home/pi/nas
   then
-    echo "  - Mount NAS"
+    echo "Mount NAS"
+    echo "sudo mount -t cifs $NASDRIVE /home/pi/nas -o username=NAS_USER,password=NAS_PASS"
     sudo mount -t cifs $NASDRIVE /home/pi/nas -o username=$NAS_USER,password=$NAS_PASS
     # return value must not be tested here, because must continue even if mount has failed
   fi
@@ -130,19 +175,21 @@ if [ $OnLine ]; then
   if mountpoint -q /home/pi/nas # If mount is now visible
   then
     # copy video to NAS
-    echo "  - Copy video"
     if [ ! -d $NASPATH/$FOLDERNAME ] #if folder does not exist on NAS
     then
+      echo "Make dir $FOLDERNAME"
       mkdir $NASPATH/$FOLDERNAME # Create it
     fi
     if [ -d $NASPATH/$FOLDERNAME ] #if folder exists on NAS
     then
       if [ -f $NASPATH/$FOLDERNAME/$FILENAME ] # if same name is already in the folder
       then
+        echo "Delete video $NASPATH/$FOLDERNAME/$FILENAME"
         rm $NASPATH/$FOLDERNAME/$FILENAME # Delete it
       fi
       if [ ! -f $NASPATH/$FOLDERNAME/$FILENAME ] # if same file is not in the folder
       then
+        echo "Copy video to $NASPATH/$FOLDERNAME/$FILENAME"
         cpb ~/$FILENAME $NASPATH/$FOLDERNAME/$FILENAME # Copy the new file to NAS with progress bar
         if [ $? -eq 0 ]; then
           NASSAVE=1 # NAS save was successfull
@@ -156,25 +203,26 @@ fi
 line
 echo "----- Upload video to YouTube"
 
-if ! [ $OnLine ]; then echo "  There is not Internet connection. YouTube upload is skipped."; fi
+if ! [ $OnLine ]; then echo "There is not Internet connection. YouTube upload is skipped."; fi
 if [ $OnLine ]; then
   if [ -f ~/youtube-link ] # if previous link still exists
   then
+    echo "Delete Youtube link"
     rm ~/youtube-link # Delete it
     if [ $? -ne 0 ]; then
-      echo "  WARNING! Cannot delete link."
+      echo "WARNING! Cannot delete link."
     fi
   fi
   if [ ! -f ~/youtube-link ] # if there is no link
   then
     # Find description
-    if [ -f $NASPATH/$FOLDERNAME/$FOLDERNAME.txt ] # if description is alredy available
+    if [ -s $NASPATH/$FOLDERNAME/$FOLDERNAME.txt ] # if description is not empty
     then
       DESCRIPTION=$(< $NASPATH/$FOLDERNAME/$FOLDERNAME.txt)
-      echo "  Description available."
+      echo "Description available."
     else
       DESCRIPTION=$FOLDERNAME
-      echo "  Description missing."
+      echo "Description missing."
     fi
     youtube-upload --email=$GMAIL --password=$GPASS --unlisted --title="$FOLDERNAME" --description="$DESCRIPTION" --category=People --keywords="8mm, film, movie, cine-projector, raspberry pi, raspicam, scan, digitalize" ~/$FILENAME >~/youtube-link
     if [ $? -eq 0 ]; then
@@ -190,7 +238,7 @@ if [ $NASSAVE ]; then
   sudo rm ~/$FILENAME
 fi
 if ! [ $NASSAVE ]; then
-  echo "  ~/$FILENAME is not deleted, because NAS save was not successfull."
+  echo "~/$FILENAME is not deleted, because NAS save was not successfull."
 fi
 
 # Send report mail if it was succesfully uploaded to YouTube
@@ -198,12 +246,13 @@ line
 echo "----- Send report e-mail ($GTO)"
 if [ $YOUTUBE ]; then
   python /home/pi/movscan/sources/py/sendmail.py $GPASS "$GTO" $FOLDERNAME $(<~/youtube-link) "$DESCRIPTION"
-fi
-if ! [ $YOUTUBE ]; then
-  echo "  Email has not sent, because YouTube upload was not successfull."
+  if [ $? -eq 0 ]; then
+    echo "Email has sent."
+  else
+    echo "WARNING! Email has not sent."
+  fi
+else
+  echo "Email has not sent, because YouTube upload was not successfull."
 fi
 
-if [ $? -eq 0 ]; then
-  echo "Hurray, Finished!"
-fi
-
+echo "Hurray, Finished!"

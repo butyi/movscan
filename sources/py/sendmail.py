@@ -63,7 +63,8 @@ def main():
     session.sendmail(sender, recipient, qwertyuiop)
     
     session.quit()
-    print "Email has been sent."
+
+    sys.exit(errno.EACCES)
  
 if __name__ == '__main__':
     main()
