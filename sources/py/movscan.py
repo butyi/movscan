@@ -42,8 +42,6 @@ if "-h" in arguments: # If -h (help) parameter is in the arguments, than help≈
     print "Usage: sudo python movscan.py [options]"
     print "-n: normal film crop"
     print "-s: super film crop"
-    print "-m: monochrome"
-    print "-p: show preview"
     print "-h: help"
     exit
 
@@ -102,11 +100,7 @@ with picamera.PiCamera() as camera:
     camera.preview_window = 710, 10, 640, 480 # It depends on your monitor resolution!
     camera.awb_mode = 'off' # Normal bulb, manual white balance to prevent insable white-balance
     camera.video_stabilization = True # To stabilize mechanical moving os slides
-    if "-m" in arguments: # If -m (monochrome) parameter is in the arguments
-        camera.color_effects = (128,128) # Black and White image
     time.sleep(1) # Wait to camera auto settings
-    if "-p" not in arguments: # If preview is needed
-        camera.stop_preview() # Show preview
 
     # Edge detect variables for shoot detection 
     # (GPIO.wait_for_edge is not proper, because during waiting edge
