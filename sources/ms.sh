@@ -244,7 +244,11 @@ if [ $OnLine ]; then
     fi
     youtube-upload --email=$GMAIL --password=$GPASS --unlisted --title="$FOLDERNAME" --description="$DESCRIPTION" --category=People --keywords="8mm, film, movie, cine-projector, raspberry pi, raspicam, scan, digitalize" ~/$FILENAME >~/youtube-link
     if [ $? -eq 0 ]; then
-      YOUTUBE=1 # upload was successfull
+      echo "Add video to playlist 'Mozgofilmek'"
+      youtube-upload --email=$GMAIL --password=$GPASS --add-to-playlist=$PL_MOZGOFILMEK $(<~/youtube-link)
+      if [ $? -eq 0 ]; then
+        YOUTUBE=1 # upload was successfull
+      fi
     fi
   fi
 fi
