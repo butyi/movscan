@@ -267,17 +267,19 @@ fi
 line
 echo "----- Send report e-mails"
 if [ $YOUTUBE ]; then
-  python /home/pi/movscan/sources/py/sendmail.py $GPASS "$GTO" $FOLDERNAME $(<~/youtube-link) "$DESCRIPTION"
+  python /home/pi/movscan/sources/py/sendmail.py $GPASS $GTO $FOLDERNAME $(<~/youtube-link) "$DESCRIPTION"
   if [ $? -eq 0 ]; then
     echo "Email has sent to $GTO."
   else
     echo -e "${RED_TEXT}ERROR! Email has not sent to $GTO.${ENDCOLOR}"
   fi
-  python /home/pi/movscan/sources/py/sendmail.py $GPASS "$GTO2" $FOLDERNAME $(<~/youtube-link) "$DESCRIPTION"
-  if [ $? -eq 0 ]; then
-    echo "Email has sent to $GTO2."
-  else
-    echo -e "${RED_TEXT}ERROR! Email has not sent to $GTO2.${ENDCOLOR}"
+  if [ $GTO2 ]; then
+    python /home/pi/movscan/sources/py/sendmail.py $GPASS $GTO2 $FOLDERNAME $(<~/youtube-link) "$DESCRIPTION"
+    if [ $? -eq 0 ]; then
+      echo "Email has sent to $GTO2."
+    else
+      echo -e "${RED_TEXT}ERROR! Email has not sent to $GTO2.${ENDCOLOR}"
+    fi
   fi
 else
   echo "Email has not sent, because YouTube upload was not successfull."
