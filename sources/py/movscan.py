@@ -92,9 +92,11 @@ with picamera.PiCamera() as camera:
     # Adjust camera for my environment 
     if "-s" in arguments: # For super film
         camera.crop = 0.27,0.19,0.6,0.6 # Crop active CCD part
+        print "Super film crop"
     if "-n" in arguments: # For normal film
         #             0.32
         camera.crop = 0.36,0.23,0.50,0.50 # Crop active CCD part
+        print "Normal film crop"
     camera.vflip = True # Mirroring is needed due to optic
     camera.preview_fullscreen = False # To be able to resize manually to see command line behind
     camera.preview_window = 710, 10, 640, 480 # It depends on your monitor resolution!
