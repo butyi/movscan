@@ -87,94 +87,109 @@ if [ $OnLine ]; then
   fi
 fi
 
-
-# jump to temp folder where images will be stored
-line
-echo "----- Jump to ~/temp folder"
-cd ~/temp
-if [ $? -ne 0 ] # cd command faults
+# check video file
+if [ -f ~/$FILENAME ] # if there is video file with same name
 then
-  echo -e "${RED_TEXT}ERROR! Cannot jump to ~/temp folder.${ENDCOLOR}"
-  exit
-fi
-if [ "$(ls -A ~/temp)" ] # If temp folder is not empty
-then
-  echo -e "${BLUE_TEXT}There are already images available in temp folder. Do you want to overwrite them? (y/n)?${ENDCOLOR}"
+  echo -e "${BLUE_TEXT}There are already video file available. Do you want to keep it and continue with upload? (u/n)?${ENDCOLOR}"
   read choice
   case "$choice" in
-    y|Y ) NEW_IMAGES=1;;
+    u|U ) UPLOAD_EXISTING=1;;
     n|N ) ;;
     * ) echo -e "${RED_TEXT}Invalid answer!${ENDCOLOR}"; exit;;
   esac
-  if [ $NEW_IMAGES ]; then
-    cd ~/
-    sudo rm -r temp # Delete all images in folder
-    mkdir temp
-    cd ~/temp
-  fi
-else # If temp folder is empty
-  echo "The temp folder is empty."
-  NEW_IMAGES=1
 fi
 
-# Shoot slides of movie. The sript exits at the end of movie automaticly
-if [ $NEW_IMAGES ]; then
+if ! [ $UPLOAD_EXISTING ]
+then
+  # jump to temp folder where images will be stored
   line
-  echo "----- Shooting slides"
-  echo "sudo python ~/movscan/sources/py/movscan.py $2"
-  sudo python ~/movscan/sources/py/movscan.py $2
-  if [ $? -ne 0 ]; then
-    echo -e "${RED_TEXT}ERROR! Cannot take images.${ENDCOLOR}"
+  echo "----- Jump to ~/temp folder"
+  cd ~/temp
+  if [ $? -ne 0 ] # cd command faults
+  then
+    echo -e "${RED_TEXT}ERROR! Cannot jump to ~/temp folder.${ENDCOLOR}"
     exit
   fi
-fi
+  if [ "$(ls -A ~/temp)" ] # If temp folder is not empty
+  then
+    echo -e "${BLUE_TEXT}There are already images available in temp folder. Do you want to overwrite them? (y/n)?${ENDCOLOR}"
+    read choice
+    case "$choice" in
+      y|Y ) NEW_IMAGES=1;;
+      n|N ) ;;
+      * ) echo -e "${RED_TEXT}Invalid answer!${ENDCOLOR}"; exit;;
+    esac
+    if [ $NEW_IMAGES ]; then
+      cd ~/
+      sudo rm -r temp # Delete all images in folder
+      mkdir temp
+      cd ~/temp
+    fi
+  else # If temp folder is empty
+    echo "The temp folder is empty."
+    NEW_IMAGES=1
+  fi
 
-# Ask user whether the film was color or grayscale
-echo -e "${BLUE_TEXT}Was the film color or grayscale? (c/g)?${ENDCOLOR}"
-read choice
-case "$choice" in
-  c|C ) echo "color"; FILM_COLOR=1;;
-  g|G ) echo "grayscale"; FILM_GRAYSCALE=1;;
-  * ) echo -e "${RED_TEXT}Invalid answer!${ENDCOLOR}"; exit;;
-esac
+
+  # Shoot slides of movie. The sript exits at the end of movie automaticly
+  if [ $NEW_IMAGES ]; then
+    line
+    echo "----- Shooting slides"
+    echo "sudo python ~/movscan/sources/py/movscan.py $2"
+    sudo python ~/movscan/sources/py/movscan.py $2
+    if [ $? -ne 0 ]; then
+      echo -e "${RED_TEXT}ERROR! Cannot take images.${ENDCOLOR}"
+      exit
+    fi
+  fi
+
+  # Ask user whether the film was color or grayscale
+  echo -e "${BLUE_TEXT}Was the film color or grayscale? (c/g)?${ENDCOLOR}"
+  read choice
+  case "$choice" in
+    c|C ) echo "color"; FILM_COLOR=1;;
+    g|G ) echo "grayscale"; FILM_GRAYSCALE=1;;
+    * ) echo -e "${RED_TEXT}Invalid answer!${ENDCOLOR}"; exit;;
+  esac
 
 
-# Create video from images
-line
-echo "----- Creating 15fps video by concatenating images"
-if [ -f ~/$FILENAME ] # if there is video file with same name
-then
-  rm ~/$FILENAME # delete it
-fi
+  # Create video from images
+  line
+  echo "----- Creating 15fps video by concatenating images"
+  if [ -f ~/$FILENAME ] # if there is video file with same name
+  then
+    rm ~/$FILENAME # delete it
+  fi
 
-if [ $FILM_COLOR ];
-then
-  echo "avconv -g 0 -r 15 -f image2 -i image%05d.jpg -qscale 1 -b 15M -preset slower ~/$FILENAME"
-  avconv -g 0 -r 15 -f image2 -i image%05d.jpg -qscale 1 -b 15M -preset slower ~/$FILENAME
-fi
+  if [ $FILM_COLOR ];
+  then
+    echo "avconv -g 0 -r 15 -f image2 -i image%05d.jpg -qscale 1 -b 15M -preset slower ~/$FILENAME"
+    avconv -g 0 -r 15 -f image2 -i image%05d.jpg -qscale 1 -b 15M -preset slower ~/$FILENAME
+  fi
 
-if [ $FILM_GRAYSCALE ];
-then
-  echo "avconv -g 0 -r 15 -f image2 -i image%05d.jpg -flags gray -qscale 1 -b 15M -preset slower ~/$FILENAME"
-  avconv -g 0 -r 15 -f image2 -i image%05d.jpg -flags gray -qscale 1 -b 15M -preset slower ~/$FILENAME
-fi
+  if [ $FILM_GRAYSCALE ];
+  then
+    echo "avconv -g 0 -r 15 -f image2 -i image%05d.jpg -flags gray -qscale 1 -b 15M -preset slower ~/$FILENAME"
+    avconv -g 0 -r 15 -f image2 -i image%05d.jpg -flags gray -qscale 1 -b 15M -preset slower ~/$FILENAME
+  fi
 
-if [ $? -ne 0 ]; then
-  echo -e "${RED_TEXT}ERROR! Cannot make video.${ENDCOLOR}"
-  exit
-fi
+  if [ $? -ne 0 ]; then
+    echo -e "${RED_TEXT}ERROR! Cannot make video.${ENDCOLOR}"
+    exit
+  fi
 
-# delete images
-line
-echo "----- Delete images"
-cd ~/
-sudo rm -r temp # Delete all images in folder
-mkdir temp
-cd ~/temp
-if [ $? -ne 0 ]; then
-  echo -e "${YELLOW_TEXT}WARNING! Cannot delete images.${ENDCOLOR}"
-else
-  echo "OK. Images are deleted."
+  # delete images
+  line
+  echo "----- Delete images"
+  cd ~/
+  sudo rm -r temp # Delete all images in folder
+  mkdir temp
+  cd ~/temp
+  if [ $? -ne 0 ]; then
+    echo -e "${YELLOW_TEXT}WARNING! Cannot delete images.${ENDCOLOR}"
+  else
+    echo "OK. Images are deleted."
+  fi
 fi
 
 # copy video to NAS if possible
@@ -202,8 +217,13 @@ if [ $OnLine ]; then
     then
       if [ -f $NASPATH/$FOLDERNAME/$FILENAME ] # if same name is already in the folder
       then
-        echo "Delete video $NASPATH/$FOLDERNAME/$FILENAME"
-        rm $NASPATH/$FOLDERNAME/$FILENAME # Delete it
+        if ! [ $UPLOAD_EXISTING ] # If we don't want to keep the existing one
+        then
+          echo "Delete video $NASPATH/$FOLDERNAME/$FILENAME"
+          rm $NASPATH/$FOLDERNAME/$FILENAME # Delete it
+        else
+          echo "Keep existing video $NASPATH/$FOLDERNAME/$FILENAME on NAS"
+        fi
       fi
       if [ ! -f $NASPATH/$FOLDERNAME/$FILENAME ] # if same file is not in the folder
       then
@@ -256,11 +276,10 @@ fi
 line
 echo "----- Delete video"
 # delete video if it is stored on NAS
-if [ $NASSAVE ]; then
+if [ $NASSAVE -a $YOUTUBE ]; then
   sudo rm ~/$FILENAME
-fi
-if ! [ $NASSAVE ]; then
-  echo "~/$FILENAME is not deleted, because NAS save was not successfull."
+else
+  echo "~/$FILENAME is not deleted, because neither NAS save nor Youtube upload were not successfull."
 fi
 
 # Send report mail if it was succesfully uploaded to YouTube
